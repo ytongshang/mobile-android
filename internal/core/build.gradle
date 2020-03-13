@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
@@ -7,11 +7,12 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        applicationId "cradle.rancune.once"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+
+        consumerProguardFiles 'consumer-rules.pro'
     }
 
     buildTypes {
@@ -21,10 +22,9 @@ android {
         }
     }
 
+    resourcePrefix 'core_'
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation "androidx.appcompat:appcompat:${rootProject.ext.androidx_appcompat}"
-    implementation "androidx.core:core-ktx:${rootProject.ext.core_ktx}"
+    implementation "androidx.annotation:annotation:${rootProject.ext.androidx_annotation}"
 }

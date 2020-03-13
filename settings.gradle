@@ -1,2 +1,4 @@
 rootProject.name='Once'
 include ':app'
+include ':internal:core'
+include ':video:record'
