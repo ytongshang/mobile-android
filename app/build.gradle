@@ -25,6 +25,16 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${rootProject.ext.coroutines}"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${rootProject.ext.coroutines}"
+
     implementation "androidx.appcompat:appcompat:${rootProject.ext.androidx_appcompat}"
-    implementation "androidx.core:core-ktx:${rootProject.ext.core_ktx}"
+    implementation "androidx.recyclerview:recyclerview:${rootProject.ext.androidx_recyclerview}"
+    implementation "androidx.core:core-ktx:${rootProject.ext.androidx_ktx}"
+
+    implementation "com.yanzhenjie:permission:$rootProject.permission"
+
+    implementation project(path: ':internal:core')
+    implementation project(path: ':video:record')
+
 }

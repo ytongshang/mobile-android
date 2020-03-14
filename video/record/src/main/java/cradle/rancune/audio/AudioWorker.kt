@@ -67,14 +67,10 @@ class AudioWorker(private val config: AudioConfig, private val listener: AudioCa
         Looper.prepare()
         synchronized(lock) {
             handler = AudioHandler(this)
+            ready = true
             lock.notifyAll()
         }
         Looper.loop()
-        synchronized(lock) {
-            running = false
-            ready = false
-            handler = null
-        }
     }
 
     private fun _start() {
@@ -167,6 +163,11 @@ class AudioWorker(private val config: AudioConfig, private val listener: AudioCa
             listener.onError(AudioCallback.ERROR_AUDIO_STOP_RECORD, e, null)
         }
         listener.onState(AudioCallback.STATE_AUDIO_STOP)
+        ready = false
+        running = false
+        stopped = false
+        handler?.looper?.quit()
+        handler = null
     }
 
     private fun handleFailure(error: Int, throwable: Throwable? = null, extra: Any? = null): Boolean {
@@ -189,7 +190,6 @@ class AudioWorker(private val config: AudioConfig, private val listener: AudioCa
                 MSG_STOP -> {
                     workder._frame(true)
                     workder._stop()
-                    looper.quit()
                 }
             }
         }
