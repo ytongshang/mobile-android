@@ -1,4 +1,4 @@
-package cradle.rancune.internal.core.logger;
+package cradle.rancune.internal.logger;
 
 import android.util.Log;
 

@@ -1,22 +1,20 @@
 package cradle.rancune.once.view.record
 
-import android.annotation.TargetApi
 import android.media.MediaCodec
 import android.media.MediaFormat
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import com.yanzhenjie.permission.AndPermission
 import com.yanzhenjie.permission.runtime.Permission
-import cradle.rancune.audio.AudioCallback
-import cradle.rancune.audio.AudioConfig
-import cradle.rancune.audio.AudioWorker
-import cradle.rancune.internal.core.logger.AndroidLog
-import cradle.rancune.internal.core.utils.IOUtils
-import cradle.rancune.internal.core.utils.T
+import cradle.rancune.internal.logger.AndroidLog
+import cradle.rancune.internal.utils.IOUtils
+import cradle.rancune.internal.utils.T
+import cradle.rancune.media.AudioConfig
+import cradle.rancune.media.audiorecorder.AudioCallback
+import cradle.rancune.media.audiorecorder.AudioWorker
+import cradle.rancune.media.audiorecorder.utils.ADTSUtils
 import cradle.rancune.once.R
 import cradle.rancune.once.view.base.BaseActivity
-import cradle.rancune.utils.ADTSUtils
 import kotlinx.android.synthetic.main.once_activity_record_audio.*
 import java.io.*
 import java.nio.ByteBuffer
@@ -40,7 +38,8 @@ class AudioRecordActivity : BaseActivity(), View.OnClickListener {
         btn_start.setOnClickListener(this)
         btn_stop.setOnClickListener(this)
         val config = AudioConfig()
-        worker = AudioWorker(config, object : AudioCallback {
+        worker = AudioWorker(config, object :
+            AudioCallback {
             override fun onState(state: Int) {
                 when (state) {
                     AudioCallback.STATE_AUDIO_START -> {

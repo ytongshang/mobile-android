@@ -22,7 +22,7 @@ android {
         }
     }
 
-    resourcePrefix 'record_'
+    resourcePrefix 'player_'
 }
 
 dependencies {

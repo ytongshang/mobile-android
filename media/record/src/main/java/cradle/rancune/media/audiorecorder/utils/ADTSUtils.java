@@ -1,4 +1,4 @@
-package cradle.rancune.utils;
+package cradle.rancune.media.audiorecorder.utils;
 
 import java.util.HashMap;
 import java.util.Map;

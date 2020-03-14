@@ -1,16 +1,14 @@
-package cradle.rancune.audio
+package cradle.rancune.media.audiorecorder
 
 import android.media.AudioRecord
 import android.media.MediaCodec
 import android.media.MediaFormat
-import android.os.Build
-import androidx.annotation.RequiresApi
-import cradle.rancune.internal.core.logger.AndroidLog
+import cradle.rancune.internal.logger.AndroidLog
+import cradle.rancune.media.AudioConfig
 
 /**
  * Created by Rancune@126.com 2018/7/24.
  */
-@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
 class AudioEncoder(private val config: AudioConfig, private val listener: AudioCallback) {
 
     companion object {

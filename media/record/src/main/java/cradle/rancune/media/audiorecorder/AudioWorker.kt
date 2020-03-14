@@ -1,18 +1,20 @@
 @file:Suppress("FunctionName")
 
-package cradle.rancune.audio
+package cradle.rancune.media.audiorecorder
 
 import android.media.AudioRecord
 import android.media.MediaRecorder
-import android.os.*
-import androidx.annotation.RequiresApi
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
+import android.os.Process
+import cradle.rancune.media.AudioConfig
 import java.lang.ref.WeakReference
 import kotlin.math.ceil
 
 /**
  * Created by Rancune@126.com 2020/3/3.
  */
-@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
 class AudioWorker(private val config: AudioConfig, private val listener: AudioCallback) : Runnable {
 
     companion object {
@@ -38,7 +40,9 @@ class AudioWorker(private val config: AudioConfig, private val listener: AudioCa
                 return
             }
             running = true
-            Thread(this, TAG).start()
+            Thread(this,
+                TAG
+            ).start()
             while (!ready) {
                 try {
                     lock.wait()
@@ -66,7 +70,8 @@ class AudioWorker(private val config: AudioConfig, private val listener: AudioCa
         Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
         Looper.prepare()
         synchronized(lock) {
-            handler = AudioHandler(this)
+            handler =
+                AudioHandler(this)
             ready = true
             lock.notifyAll()
         }
@@ -97,7 +102,8 @@ class AudioWorker(private val config: AudioConfig, private val listener: AudioCa
         }
 
         try {
-            audioEncoder = AudioEncoder(config, listener)
+            audioEncoder =
+                AudioEncoder(config, listener)
         } catch (e: Exception) {
             if (handleFailure(AudioCallback.ERROR_AUDIO_CREATE_ENCODER)) {
                 return

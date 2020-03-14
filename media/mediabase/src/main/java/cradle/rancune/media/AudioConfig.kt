@@ -1,4 +1,4 @@
-package cradle.rancune.audio
+package cradle.rancune.media
 
 import android.media.AudioFormat
 import android.media.AudioRecord

@@ -1,4 +1,4 @@
-package cradle.rancune.internal.core.utils;
+package cradle.rancune.internal.utils;
 
 
 import androidx.annotation.Nullable;
@@ -19,8 +19,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
 
-import cradle.rancune.internal.core.logger.AndroidLog;
-
+import cradle.rancune.internal.logger.AndroidLog;
 
 /**
  * Created by Rancune@126.com on 2016/7/29.

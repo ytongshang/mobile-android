@@ -1,4 +1,4 @@
-package cradle.rancune.internal.core.utils;
+package cradle.rancune.internal.utils;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
@@ -16,7 +16,7 @@ import androidx.annotation.StringRes;
 
 import java.lang.reflect.Field;
 
-import cradle.rancune.internal.core.logger.AndroidLog;
+import cradle.rancune.internal.logger.AndroidLog;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class T {

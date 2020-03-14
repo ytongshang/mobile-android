@@ -22,10 +22,7 @@ android {
         }
     }
 
-    resourcePrefix 'record_'
 }
 
 dependencies {
-    implementation project(path: ':internal:core')
-    implementation project(path: ':media:mediabase')
 }

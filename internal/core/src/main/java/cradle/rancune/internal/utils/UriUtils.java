@@ -1,4 +1,4 @@
-package cradle.rancune.internal.core.utils;
+package cradle.rancune.internal.utils;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.provider.ContactsContract;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
