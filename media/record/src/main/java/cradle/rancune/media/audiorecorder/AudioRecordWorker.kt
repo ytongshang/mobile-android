@@ -11,7 +11,6 @@ import android.os.Looper
 import android.os.Message
 import android.os.Process
 import cradle.rancune.media.EncodedData
-import cradle.rancune.media.audiorecorder.encoder.AudioMediaCodecEncoder
 import java.lang.ref.WeakReference
 import kotlin.math.ceil
 
@@ -207,11 +206,10 @@ class AudioRecordWorker(
         }
 
         try {
-            audioEncoder =
-                AudioMediaCodecEncoder(
-                    config,
-                    listener
-                )
+            audioEncoder = encoderFactory.create(
+                config,
+                listener
+            )
         } catch (e: Exception) {
             if (handleFailure(ERROR_CREATE_ENCODER)) {
                 return

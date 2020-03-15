@@ -5,8 +5,7 @@ import android.media.AudioManager
 import android.media.MediaExtractor
 import android.os.Bundle
 import cradle.rancune.internal.logger.AndroidLog
-import cradle.rancune.media.audioplayer.AudioPlayConfig
-import cradle.rancune.media.audioplayer.AudioPlayWorker
+import cradle.rancune.media.audioplayer.AudioTrackPlayer
 import cradle.rancune.once.R
 import cradle.rancune.once.view.base.BaseActivity
 import java.io.File
@@ -18,18 +17,18 @@ import java.io.InputStream
  */
 class PCMPlayerActivity : BaseActivity() {
 
-    private var player: AudioPlayWorker? = null
+    private var player: AudioTrackPlayer? = null
     private var t: MediaExtractor? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.once_activity_pcm_player)
-        val config = AudioPlayConfig()
+        val config = AudioTrackPlayer.Config()
         config.sampleRate = 44100
         config.channel = AudioFormat.CHANNEL_OUT_MONO
-        config.encodingFormat = AudioFormat.ENCODING_PCM_8BIT
+        config.encodingFormat = AudioFormat.ENCODING_PCM_16BIT
         config.streamStype = AudioManager.STREAM_MUSIC
-        player = AudioPlayWorker(config)
+        player = AudioTrackPlayer(config)
         player?.start()
         start()
     }

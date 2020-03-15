@@ -1,6 +1,5 @@
 package cradle.rancune.once.view.record
 
-import android.media.AudioFormat
 import android.media.MediaFormat
 import android.os.Bundle
 import android.view.View
@@ -41,7 +40,6 @@ class AudioRecordActivity : BaseActivity(), View.OnClickListener {
             addADTS = id == R.id.adts
         }
         val config = AudioRecordWorker.Config()
-        config.encodingFormat = AudioFormat.ENCODING_PCM_8BIT
         worker = AudioRecordWorker(config, object : AudioRecordWorker.Listener {
             override fun onState(state: Int) {
                 when (state) {

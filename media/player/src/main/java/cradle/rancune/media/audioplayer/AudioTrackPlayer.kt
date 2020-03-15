@@ -11,7 +11,7 @@ import java.lang.ref.WeakReference
 /**
  * Created by Rancune@126.com 2020/3/14.
  */
-class AudioPlayWorker(private val config: AudioPlayConfig) : Runnable {
+class AudioTrackPlayer(private val config: Config) : Runnable {
 
     companion object {
         const val TAG = "AudioPlayWorker"
@@ -21,10 +21,36 @@ class AudioPlayWorker(private val config: AudioPlayConfig) : Runnable {
         const val MSG_RESUME = 3
         const val MSG_PAUSE = 4
         const val MSG_RELEASE = 5
+
+        const val ERROR_AUDIOTRACK_MIN_BUFFER = 1
+        const val ERROR_AUDIOTRACK_CREATED = 2
+        const val ERROR_AUDIOTRACK_RELEASE = 3
+
+        const val STATE_AUDIO_START = 101
+        const val STATE_AUDIO_STOP = 102
+    }
+
+    class Config {
+        var streamStype: Int = -1
+
+        var sampleRate = -1
+
+        var channel = -1
+
+        var encodingFormat = -1
+
+        var minBufferSize = -1
+    }
+
+    interface Listener {
+
+        fun onStateChanged(state: Int)
+
+        fun onError(code: Int, e: Throwable? = null, extra: Any? = null)
     }
 
     private var audioTrack: AudioTrack? = null
-    private var listener: AudioPlayCallback? = null
+    private var listener: Listener? = null
 
     private val lock = Object()
     private var handler: Handler? = null
@@ -120,7 +146,7 @@ class AudioPlayWorker(private val config: AudioPlayConfig) : Runnable {
         val minBufferSize = AudioTrack.getMinBufferSize(sampleRate, channelConfig, encodingFormat)
         AndroidLog.d(TAG, "$minBufferSize")
         if (minBufferSize <= 0) {
-            handleFailure(AudioPlayCallback.ERROR_AUDIOTRACK_MIN_BUFFER, null, null)
+            handleFailure(ERROR_AUDIOTRACK_MIN_BUFFER, null, null)
             return
         }
 
@@ -149,7 +175,7 @@ class AudioPlayWorker(private val config: AudioPlayConfig) : Runnable {
                 )
             }
         } catch (e: Exception) {
-            if (handleFailure(AudioPlayCallback.ERROR_AUDIOTRACK_CREATED, e)) {
+            if (handleFailure(ERROR_AUDIOTRACK_CREATED, e)) {
                 return
             }
         }
@@ -160,15 +186,14 @@ class AudioPlayWorker(private val config: AudioPlayConfig) : Runnable {
         if (audioTrack?.state == AudioTrack.STATE_INITIALIZED) {
             when (data) {
                 is ByteArray -> {
-                    val size = audioTrack!!.write(data, offsetInBytes, sizeInBytes)
-                    when {
-                        size == AudioRecord.ERROR_INVALID_OPERATION -> {
+                    when (audioTrack!!.write(data, offsetInBytes, sizeInBytes)) {
+                        AudioRecord.ERROR_INVALID_OPERATION -> {
                             AndroidLog.d("Rancune", "error: ERROR_INVALID_OPERATION")
                         }
-                        size == AudioRecord.ERROR_BAD_VALUE -> {
+                        AudioRecord.ERROR_BAD_VALUE -> {
                             AndroidLog.d("Rancune", "error: ERROR_BAD_VALUE")
                         }
-                        size == AudioRecord.ERROR_DEAD_OBJECT -> {
+                        AudioRecord.ERROR_DEAD_OBJECT -> {
                             AndroidLog.d("Rancune", "error: ERROR_DEAD_OBJECT")
                         }
                     }
@@ -204,7 +229,7 @@ class AudioPlayWorker(private val config: AudioPlayConfig) : Runnable {
             audioTrack?.release()
             audioTrack = null
         } catch (e: Exception) {
-            listener?.onError(AudioPlayCallback.ERROR_AUDIOTRACK_RELEASE, e)
+            listener?.onError(ERROR_AUDIOTRACK_RELEASE, e)
         }
         handler?.looper?.quit()
         handler = null
@@ -219,8 +244,8 @@ class AudioPlayWorker(private val config: AudioPlayConfig) : Runnable {
         return true
     }
 
-    private class H(worker: AudioPlayWorker) : Handler() {
-        private val ref = WeakReference<AudioPlayWorker>(worker)
+    private class H(worker: AudioTrackPlayer) : Handler() {
+        private val ref = WeakReference<AudioTrackPlayer>(worker)
 
         override fun handleMessage(msg: Message) {
             val workder = ref.get() ?: return
