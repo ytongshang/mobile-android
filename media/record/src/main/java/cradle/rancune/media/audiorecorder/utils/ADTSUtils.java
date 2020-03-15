@@ -1,7 +1,6 @@
 package cradle.rancune.media.audiorecorder.utils;
 
-import java.util.HashMap;
-import java.util.Map;
+import android.util.SparseIntArray;
 
 /**
  * Author : eric
@@ -14,27 +13,32 @@ import java.util.Map;
  */
 
 public class ADTSUtils {
-    private static final Map<String, Integer> SAMPLE_RATE_TYPE;
+    private static final SparseIntArray SAMPLE_RATE_TYPE;
 
     static {
-        SAMPLE_RATE_TYPE = new HashMap<>();
-        SAMPLE_RATE_TYPE.put("96000", 0);
-        SAMPLE_RATE_TYPE.put("88200", 1);
-        SAMPLE_RATE_TYPE.put("64000", 2);
-        SAMPLE_RATE_TYPE.put("48000", 3);
-        SAMPLE_RATE_TYPE.put("44100", 4);
-        SAMPLE_RATE_TYPE.put("32000", 5);
-        SAMPLE_RATE_TYPE.put("24000", 6);
-        SAMPLE_RATE_TYPE.put("22050", 7);
-        SAMPLE_RATE_TYPE.put("16000", 8);
-        SAMPLE_RATE_TYPE.put("12000", 9);
-        SAMPLE_RATE_TYPE.put("11025", 10);
-        SAMPLE_RATE_TYPE.put("8000", 11);
-        SAMPLE_RATE_TYPE.put("7350", 12);
+        SAMPLE_RATE_TYPE = new SparseIntArray();
+        SAMPLE_RATE_TYPE.put(96000, 0);
+        SAMPLE_RATE_TYPE.put(88200, 1);
+        SAMPLE_RATE_TYPE.put(64000, 2);
+        SAMPLE_RATE_TYPE.put(48000, 3);
+        SAMPLE_RATE_TYPE.put(44100, 4);
+        SAMPLE_RATE_TYPE.put(32000, 5);
+        SAMPLE_RATE_TYPE.put(24000, 6);
+        SAMPLE_RATE_TYPE.put(22050, 7);
+        SAMPLE_RATE_TYPE.put(16000, 8);
+        SAMPLE_RATE_TYPE.put(12000, 9);
+        SAMPLE_RATE_TYPE.put(11025, 10);
+        SAMPLE_RATE_TYPE.put(8000, 11);
+        SAMPLE_RATE_TYPE.put(7350, 12);
     }
 
     private static int getSampleRateType(int sampleRate) {
-        return SAMPLE_RATE_TYPE.get(sampleRate + "");
+        int value = SAMPLE_RATE_TYPE.get(sampleRate, -1);
+        if (value == -1) {
+            String msg = "sampleRate:" + sampleRate + " is not supported";
+            throw new IllegalArgumentException(msg);
+        }
+        return value;
     }
 
     public static void addADTStoPacket(byte[] packet, int sampleRate, int packetLen) {

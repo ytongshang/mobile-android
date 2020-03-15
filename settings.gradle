@@ -3,6 +3,5 @@ include ':app'
 
 include ':internal:core'
 
-include ':media:mediabase'
 include ':media:record'
 include ':media:player'

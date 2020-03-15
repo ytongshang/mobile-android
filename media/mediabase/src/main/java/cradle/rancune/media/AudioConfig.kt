@@ -28,7 +28,7 @@ class AudioConfig {
      * 每个声音采样点用16bit表示
      * AudioFormat.ENCODING_PCM_16BIT保证在所有的android上工作
      */
-    var format = AudioFormat.ENCODING_PCM_16BIT
+    var encodingFormat = AudioFormat.ENCODING_PCM_16BIT
 
     /**
      * 音频帧的采样点，与编码格式有关
@@ -60,9 +60,9 @@ class AudioConfig {
 
     val byteOfFormat: Int
         get() {
-            if (format == AudioFormat.ENCODING_PCM_16BIT) {
+            if (encodingFormat == AudioFormat.ENCODING_PCM_16BIT) {
                 return 2
-            } else if (format == AudioFormat.ENCODING_PCM_8BIT) {
+            } else if (encodingFormat == AudioFormat.ENCODING_PCM_8BIT) {
                 return 1
             }
             return 1

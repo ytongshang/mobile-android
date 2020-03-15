@@ -27,5 +27,4 @@ android {
 
 dependencies {
     implementation project(path: ':internal:core')
-    implementation project(path: ':media:mediabase')
 }

@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cradle.rancune.once.R
 import cradle.rancune.once.view.base.BaseActivity
+import cradle.rancune.once.view.player.PCMPlayerActivity
 import cradle.rancune.once.view.record.AudioRecordActivity
 import kotlinx.android.synthetic.main.once_activity_main.*
 import java.util.*
@@ -37,6 +38,12 @@ class MainActivity : BaseActivity() {
         audioRecord.title = R.string.once_activity_audio_record
         audioRecord.target = AudioRecordActivity::class.java
         pages.add(audioRecord)
+
+        val pcmPlayer = Page()
+        pcmPlayer.title = R.string.once_activity_pcm_player
+        pcmPlayer.target = PCMPlayerActivity::class.java
+        pages.add(pcmPlayer)
+
         adapter?.notifyDataSetChanged()
     }
 

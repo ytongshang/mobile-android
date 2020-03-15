@@ -1,6 +1,6 @@
 package cradle.rancune.once.view.record
 
-import android.media.MediaCodec
+import android.media.AudioFormat
 import android.media.MediaFormat
 import android.os.Bundle
 import android.view.View
@@ -9,15 +9,14 @@ import com.yanzhenjie.permission.runtime.Permission
 import cradle.rancune.internal.logger.AndroidLog
 import cradle.rancune.internal.utils.IOUtils
 import cradle.rancune.internal.utils.T
-import cradle.rancune.media.AudioConfig
-import cradle.rancune.media.audiorecorder.AudioCallback
-import cradle.rancune.media.audiorecorder.AudioWorker
+import cradle.rancune.media.EncodedData
+import cradle.rancune.media.audiorecorder.AudioEncoder
+import cradle.rancune.media.audiorecorder.AudioRecordWorker
 import cradle.rancune.media.audiorecorder.utils.ADTSUtils
 import cradle.rancune.once.R
 import cradle.rancune.once.view.base.BaseActivity
 import kotlinx.android.synthetic.main.once_activity_record_audio.*
 import java.io.*
-import java.nio.ByteBuffer
 
 /**
  * Created by Rancune@126.com 2018/7/27.
@@ -28,24 +27,28 @@ class AudioRecordActivity : BaseActivity(), View.OnClickListener {
         private const val TAG = "AudioRecordActivity"
     }
 
-    private var worker: AudioWorker? = null
+    private var worker: AudioRecordWorker? = null
     private var outputStream: OutputStream? = null
     private var isRecording = false
+    private var addADTS = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.once_activity_record_audio)
         btn_start.setOnClickListener(this)
         btn_stop.setOnClickListener(this)
-        val config = AudioConfig()
-        worker = AudioWorker(config, object :
-            AudioCallback {
+        radioGroup.setOnCheckedChangeListener { _, id ->
+            addADTS = id == R.id.adts
+        }
+        val config = AudioRecordWorker.Config()
+        config.encodingFormat = AudioFormat.ENCODING_PCM_8BIT
+        worker = AudioRecordWorker(config, object : AudioRecordWorker.Listener {
             override fun onState(state: Int) {
                 when (state) {
-                    AudioCallback.STATE_AUDIO_START -> {
+                    AudioRecordWorker.STATE_AUDIO_START -> {
                         isRecording = true
                     }
-                    AudioCallback.STATE_AUDIO_STOP -> {
+                    AudioRecordWorker.STATE_AUDIO_STOP -> {
                         isRecording = false
                     }
                 }
@@ -59,28 +62,36 @@ class AudioRecordActivity : BaseActivity(), View.OnClickListener {
             override fun onFormatChanged(format: MediaFormat) {
             }
 
-            override fun onOutputAvailable(info: MediaCodec.BufferInfo, buffer: ByteBuffer) {
+            override fun onOutputAvailable(data: EncodedData) {
                 if (isRecording) {
                     if (outputStream == null) {
                         stopRecord()
                         return
                     }
-                    //7为ADTS头部的大小
-                    val chunkSize = info.size + 7
-                    // 加入ADTS的文件头
-                    val chunk = ByteArray(chunkSize)
-                    ADTSUtils.addADTStoPacket(chunk, config.sampleRate, chunkSize)
-                    // 读入原始的数据
-                    buffer.position(info.offset)
-                    buffer.limit(info.offset + info.size)
-                    buffer.get(chunk, 7, info.size);
-                    try {
-                        outputStream!!.write(chunk, 0, chunkSize)
-                    } catch (e: IOException) {
-                        stopRecord()
+                    val ori = data.byteArray ?: return
+                    if (addADTS) {
+                        // 7为ADTS头部的大小
+                        val dstSize = data.size + 7
+                        val dst = ByteArray(dstSize)
+                        // 加入ADTS的文件头
+                        ADTSUtils.addADTStoPacket(dst, config.sampleRate, dstSize)
+                        // 原始数据
+                        System.arraycopy(ori, data.offset, dst, 7, data.size)
+                        try {
+                            outputStream!!.write(dst, 0, dstSize)
+                        } catch (e: IOException) {
+                            stopRecord()
+                        }
+                    } else {
+                        try {
+                            outputStream!!.write(ori, data.offset, data.size)
+                        } catch (e: IOException) {
+                            stopRecord()
+                        }
                     }
                 }
             }
+
         })
     }
 
@@ -107,7 +118,16 @@ class AudioRecordActivity : BaseActivity(), View.OnClickListener {
             .onGranted {
                 val dir = this.getExternalFilesDir("audio")
                 IOUtils.mkdirs(dir)
-                val temp = File(dir, "${System.currentTimeMillis()}.aac")
+                val suffix: String
+                val factory: AudioEncoder.Factory
+                if (addADTS) {
+                    suffix = ".aac"
+                    factory = AudioEncoder.MEDIA_CODEC
+                } else {
+                    suffix = ".pcm"
+                    factory = AudioEncoder.PCM
+                }
+                val temp = File(dir, "test${suffix}")
                 if (temp.exists()) {
                     temp.delete()
                 }
@@ -117,6 +137,7 @@ class AudioRecordActivity : BaseActivity(), View.OnClickListener {
                     stopRecord()
                     return@onGranted
                 }
+                worker?.setEncoderFactory(factory)
                 worker?.start()
             }
             .onDenied {

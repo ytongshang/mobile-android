@@ -7,21 +7,44 @@
         android:id="@+id/btn_start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="开始"/>
+        android:text="开始" />
 
     <Button
         android:id="@+id/btn_mute"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="静音"
-        android:layout_below="@+id/btn_start"/>
+        android:layout_below="@+id/btn_start"
+        android:text="静音" />
 
     <Button
         android:id="@+id/btn_stop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="结束"
-        android:layout_below="@+id/btn_mute"/>
+        android:layout_below="@+id/btn_mute"
+        android:text="结束" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btn_stop"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/adts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="adts" />
+
+        <RadioButton
+            android:id="@+id/pcm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="pcm" />
+
+    </RadioGroup>
 
 
 </RelativeLayout>

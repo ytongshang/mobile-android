@@ -35,7 +35,6 @@ dependencies {
     implementation "com.yanzhenjie:permission:$rootProject.permission"
 
     implementation project(path: ':internal:core')
-    implementation project(path: ':media:mediabase')
     implementation project(path: ':media:record')
-
+    implementation project(path: ':media:player')
 }
