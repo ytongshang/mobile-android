@@ -9,9 +9,10 @@ import cradle.rancune.internal.logger.AndroidLog
 import cradle.rancune.internal.utils.IOUtils
 import cradle.rancune.internal.utils.T
 import cradle.rancune.media.EncodedData
-import cradle.rancune.media.audiorecorder.AudioEncoder
+import cradle.rancune.media.AudioEncoder
 import cradle.rancune.media.audiorecorder.AudioRecordWorker
 import cradle.rancune.media.audiorecorder.utils.ADTSUtils
+import cradle.rancune.once.Constant
 import cradle.rancune.once.R
 import cradle.rancune.once.view.base.BaseActivity
 import kotlinx.android.synthetic.main.once_activity_record_audio.*
@@ -114,7 +115,7 @@ class AudioRecordActivity : BaseActivity(), View.OnClickListener {
             .runtime()
             .permission(Permission.RECORD_AUDIO)
             .onGranted {
-                val dir = this.getExternalFilesDir("audio")
+                val dir = this.getExternalFilesDir(Constant.AUDIO_FILE)
                 IOUtils.mkdirs(dir)
                 val suffix: String
                 val factory: AudioEncoder.Factory

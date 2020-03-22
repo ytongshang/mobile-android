@@ -1,27 +1,29 @@
-package cradle.rancune.media.audiorecorder.encoder
+package cradle.rancune.media.audioencoder
 
 import android.media.AudioRecord
 import android.media.MediaCodec
 import android.media.MediaFormat
+import android.os.Build
 import cradle.rancune.internal.logger.AndroidLog
 import cradle.rancune.media.EncodedData
-import cradle.rancune.media.audiorecorder.AudioEncoder
+import cradle.rancune.media.AudioEncoder
 import cradle.rancune.media.audiorecorder.AudioRecordWorker
 
 /**
  * Created by Rancune@126.com 2018/7/24.
  */
 class AudioMediaCodecEncoder(
-    config: AudioRecordWorker.Config,
-    listener: AudioRecordWorker.Listener
-) : AudioEncoder(config, listener) {
+    private val config: AudioRecordWorker.Config,
+    private val listener: AudioRecordWorker.Listener
+) : AudioEncoder {
 
     companion object {
-        private const val TAG = "AudioEncoder"
+        private const val TAG = "AudioMediaCodecEncoder"
         private const val SEC2MICROSEC = 1000000
     }
 
     private var encoder: MediaCodec? = null
+
     /**
      * 每秒钟采集的原始PCM数据大小
      */
@@ -60,8 +62,12 @@ class AudioMediaCodecEncoder(
         // get an input buffer
         val buffIndex = encoder!!.dequeueInputBuffer(0)
         if (buffIndex >= 0) {
-            val inputBuffers = encoder!!.inputBuffers
-            val buffer = inputBuffers[buffIndex]
+            val buffer = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                encoder!!.getInputBuffer(buffIndex)!!
+            } else {
+                @Suppress("DEPRECATION")
+                encoder!!.inputBuffers[buffIndex]!!
+            }
             buffer.clear()
             // read from audioRecord
             val readSize = record.read(buffer, buffer.remaining())
@@ -103,8 +109,12 @@ class AudioMediaCodecEncoder(
                 // 一般也不会发生
                 AndroidLog.w(TAG, "Mediacodec dequeueOutputBuffer, buffIndex < 0")
             } else {
-                val buffers = encoder!!.outputBuffers
-                val buffer = buffers[buffIndex]
+                val buffer = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    encoder!!.getOutputBuffer(buffIndex)!!
+                } else {
+                    @Suppress("DEPRECATION")
+                    encoder!!.outputBuffers[buffIndex]!!
+                }
                 // 消耗编码后的数据
                 val data = EncodedData()
                 data.offset = 0

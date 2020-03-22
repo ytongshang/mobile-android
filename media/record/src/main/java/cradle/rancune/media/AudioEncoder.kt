@@ -1,16 +1,14 @@
-package cradle.rancune.media.audiorecorder
+package cradle.rancune.media
 
 import android.media.AudioRecord
-import cradle.rancune.media.audiorecorder.encoder.AudioMediaCodecEncoder
-import cradle.rancune.media.audiorecorder.encoder.AudioPCMEncoder
+import cradle.rancune.media.audioencoder.AudioMediaCodecEncoder
+import cradle.rancune.media.audioencoder.AudioPCMEncoder
+import cradle.rancune.media.audiorecorder.AudioRecordWorker
 
 /**
- * Created by Rancune@126.com 2020/3/15.
+ * Created by Rancune@126.com 2020/3/18.
  */
-abstract class AudioEncoder(
-    val config: AudioRecordWorker.Config,
-    val listener: AudioRecordWorker.Listener
-) {
+interface AudioEncoder {
 
     companion object {
         val MEDIA_CODEC = object : Factory {
@@ -18,7 +16,10 @@ abstract class AudioEncoder(
                 config: AudioRecordWorker.Config,
                 listener: AudioRecordWorker.Listener
             ): AudioEncoder {
-                return AudioMediaCodecEncoder(config, listener)
+                return AudioMediaCodecEncoder(
+                    config,
+                    listener
+                )
             }
         }
 
@@ -27,7 +28,10 @@ abstract class AudioEncoder(
                 config: AudioRecordWorker.Config,
                 listener: AudioRecordWorker.Listener
             ): AudioEncoder {
-                return AudioPCMEncoder(config, listener)
+                return AudioPCMEncoder(
+                    config,
+                    listener
+                )
             }
         }
     }
@@ -39,13 +43,10 @@ abstract class AudioEncoder(
         ): AudioEncoder
     }
 
-    open fun start() {
+    fun start()
 
-    }
+    fun stop()
 
-    open fun stop() {
+    fun encode(record: AudioRecord, endOfStream: Boolean)
 
-    }
-
-    abstract fun encode(record: AudioRecord, endOfStream: Boolean)
 }

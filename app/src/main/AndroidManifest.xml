@@ -28,8 +28,18 @@
             android:name=".view.record.AudioRecordActivity"
             android:configChanges="orientation|keyboardHidden|navigation|locale|screenSize|screenLayout"
             android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity"/>
-        <activity android:name=".view.player.PCMPlayerActivity" />
+            tools:ignore="LockedOrientationActivity" />
 
+        <activity
+            android:name=".view.player.PCMPlayerActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|locale|screenSize|screenLayout"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
+
+        <activity
+            android:name=".view.decode.MediaCodecVideoPlayActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|locale|screenSize|screenLayout"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
     </application>
 </manifest>

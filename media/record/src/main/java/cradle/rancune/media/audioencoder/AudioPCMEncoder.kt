@@ -1,23 +1,29 @@
-package cradle.rancune.media.audiorecorder.encoder
+package cradle.rancune.media.audioencoder
 
 import android.media.AudioRecord
 import cradle.rancune.internal.logger.AndroidLog
 import cradle.rancune.media.EncodedData
-import cradle.rancune.media.audiorecorder.AudioEncoder
+import cradle.rancune.media.AudioEncoder
 import cradle.rancune.media.audiorecorder.AudioRecordWorker
 
 /**
  * Created by Rancune@126.com 2020/3/15.
  */
 class AudioPCMEncoder(
-    config: AudioRecordWorker.Config,
-    listener: AudioRecordWorker.Listener
-) : AudioEncoder(config, listener) {
+    private val config: AudioRecordWorker.Config,
+    private val listener: AudioRecordWorker.Listener
+) : AudioEncoder {
 
     private val byteArraySize: Int = if (config.minBufferSize > 0) {
         config.minBufferSize
     } else {
         2048
+    }
+
+    override fun start() {
+    }
+
+    override fun stop() {
     }
 
     override fun encode(record: AudioRecord, endOfStream: Boolean) {

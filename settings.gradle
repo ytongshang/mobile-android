@@ -5,3 +5,5 @@ include ':internal:core'
 
 include ':media:record'
 include ':media:player'
+
+include ':tech:aop'

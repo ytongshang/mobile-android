@@ -11,6 +11,7 @@ import android.os.Looper
 import android.os.Message
 import android.os.Process
 import cradle.rancune.media.EncodedData
+import cradle.rancune.media.AudioEncoder
 import java.lang.ref.WeakReference
 import kotlin.math.ceil
 
@@ -20,8 +21,7 @@ import kotlin.math.ceil
 class AudioRecordWorker(
     private val config: Config,
     private val listener: Listener
-) :
-    Runnable {
+) : Runnable {
 
     companion object {
         const val TAG = "AudioWorker"
@@ -74,6 +74,7 @@ class AudioRecordWorker(
         var minBufferSize = samplePerFrame
 
         var mime = "audio/mp4a-latm"
+
         /**
          * 音频码率，单位：比特每秒（bit/s），常用码率：64k，128k，192k，256k，320k等。
          * 原如的码率 44100*16*1 = 705600 bit/s = 705600/8 byte/s = 705600/8/1000 kb/s ≈ 86.13k
