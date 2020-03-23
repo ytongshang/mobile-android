@@ -2,33 +2,27 @@
 
 package cradle.rancune.media.audiorecorder
 
-import android.media.AudioFormat
 import android.media.AudioRecord
-import android.media.MediaFormat
 import android.media.MediaRecorder
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.os.Process
-import cradle.rancune.media.EncodedData
-import cradle.rancune.media.AudioEncoder
+import cradle.rancune.media.*
 import java.lang.ref.WeakReference
 import kotlin.math.ceil
 
 /**
  * Created by Rancune@126.com 2020/3/3.
  */
-class AudioRecordWorker(
-    private val config: Config,
-    private val listener: Listener
-) : Runnable {
+class AudioRecordWorker(private val config: AudioConfig) : Runnable {
 
     companion object {
         const val TAG = "AudioWorker"
 
-        const val MSG_START = 1
-        const val MSG_STOP = 2
-        const val MSG_FRAME = 3
+        private const val MSG_START = 1
+        private const val MSG_STOP = 2
+        private const val MSG_FRAME = 3
 
         const val ERROR_AUDIO_MIN_BUFFER = 1
         const val ERROR_CREATE_AUDIORECORD = 2
@@ -39,81 +33,9 @@ class AudioRecordWorker(
         const val ERROR_STOP_AUDIORECORD = 7
         const val ERROR_STOP_ENCODER = 8
 
-        const val STATE_AUDIO_START = 101
-        const val STATE_AUDIO_STOP = 102
-    }
-
-    class Config {
-        /**
-         * 音频采样频率，单位：赫兹（Hz），常用采样频率：8000，12050，22050，44100等
-         *
-         * @see AudioRecord
-         * 目前44100可以保证在所有的android上工作
-         */
-        var sampleRate = 44100
-
-        /**
-         * 声道
-         * AudioFormat.CHANNEL_IN_MONO保证在所有的android上工作
-         */
-        var channel = AudioFormat.CHANNEL_IN_MONO
-
-        /**
-         * 每个声音采样点用16bit表示
-         * AudioFormat.ENCODING_PCM_16BIT保证在所有的android上工作
-         */
-        var encodingFormat = AudioFormat.ENCODING_PCM_16BIT
-
-        /**
-         * 音频帧的采样点，与编码格式有关
-         * 一般AAC的是1024采样点
-         * 所以一帧的播放时间为1024 * 1000/44100= 22.32ms
-         * https://blog.csdn.net/lu_embedded/article/details/50784355
-         */
-        var samplePerFrame = 1024
-        var minBufferSize = samplePerFrame
-
-        var mime = "audio/mp4a-latm"
-
-        /**
-         * 音频码率，单位：比特每秒（bit/s），常用码率：64k，128k，192k，256k，320k等。
-         * 原如的码率 44100*16*1 = 705600 bit/s = 705600/8 byte/s = 705600/8/1000 kb/s ≈ 86.13k
-         * 经过压缩算法压缩后，使用64k
-         */
-        var bitRate = 64000
-
-        val sizeOfChannel: Int
-            get() {
-                if (channel == AudioFormat.CHANNEL_IN_MONO) {
-                    return 1
-                } else if (channel == AudioFormat.CHANNEL_IN_STEREO) {
-                    return 2
-                }
-
-                return 1
-            }
-
-        val byteOfFormat: Int
-            get() {
-                if (encodingFormat == AudioFormat.ENCODING_PCM_16BIT) {
-                    return 2
-                } else if (encodingFormat == AudioFormat.ENCODING_PCM_8BIT) {
-                    return 1
-                }
-                return 1
-            }
-
-    }
-
-    interface Listener {
-
-        fun onState(state: Int)
-
-        fun onError(code: Int, e: Throwable? = null, extra: Any? = null)
-
-        fun onFormatChanged(format: MediaFormat)
-
-        fun onOutputAvailable(data: EncodedData)
+        const val INFO_AUDIO_START = 101
+        const val INFO_AUDIO_STOP = 102
+        const val INFO_OUTPUT_MEDIAFORMAT_CHANGED = 103
     }
 
     private val lock = Object()
@@ -124,8 +46,24 @@ class AudioRecordWorker(
 
     private var audioRecord: AudioRecord? = null
     private var audioEncoder: AudioEncoder? = null
-
     private var encoderFactory: AudioEncoder.Factory = AudioEncoder.MEDIA_CODEC
+    private var infoListener: OnInfoListener? = null
+    private var errorListener: OnErrorListener? = null
+    private var dataListener: OnDataListener? = null
+
+    fun setOnInfoListener(infoListener: OnInfoListener?) {
+        this.infoListener = infoListener
+        audioEncoder?.setOnInfoListener(infoListener)
+    }
+
+    fun setOnErrorListener(errorListener: OnErrorListener?) {
+        this.errorListener = errorListener
+    }
+
+    fun setOnDataListener(dataListener: OnDataListener?) {
+        this.dataListener = dataListener
+        audioEncoder?.setOnDataListener(dataListener)
+    }
 
     fun start() {
         synchronized(lock) {
@@ -207,10 +145,9 @@ class AudioRecordWorker(
         }
 
         try {
-            audioEncoder = encoderFactory.create(
-                config,
-                listener
-            )
+            audioEncoder = encoderFactory.create(config)
+            audioEncoder?.setOnDataListener(dataListener)
+            audioEncoder?.setOnInfoListener(infoListener)
         } catch (e: Exception) {
             if (handleFailure(ERROR_CREATE_ENCODER)) {
                 return
@@ -233,7 +170,7 @@ class AudioRecordWorker(
             }
         }
 
-        listener.onState(STATE_AUDIO_START)
+        infoListener?.onInfo(INFO_AUDIO_START)
         handler?.sendEmptyMessage(MSG_FRAME)
     }
 
@@ -258,15 +195,15 @@ class AudioRecordWorker(
             audioEncoder?.stop()
             audioEncoder = null
         } catch (e: Exception) {
-            listener.onError(ERROR_STOP_ENCODER, e, null)
+            errorListener?.onError(ERROR_STOP_ENCODER, e, null)
         }
         try {
             audioRecord?.release()
             audioRecord = null
         } catch (e: Exception) {
-            listener.onError(ERROR_STOP_AUDIORECORD, e, null)
+            errorListener?.onError(ERROR_STOP_AUDIORECORD, e, null)
         }
-        listener.onState(STATE_AUDIO_STOP)
+        infoListener?.onInfo(INFO_AUDIO_STOP)
         ready = false
         running = false
         stopped = false
@@ -279,7 +216,7 @@ class AudioRecordWorker(
         throwable: Throwable? = null,
         extra: Any? = null
     ): Boolean {
-        listener.onError(error, throwable, extra)
+        errorListener?.onError(error, extra, throwable)
         return true
     }
 

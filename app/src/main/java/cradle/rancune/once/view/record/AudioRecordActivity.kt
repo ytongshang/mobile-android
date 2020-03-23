@@ -1,15 +1,12 @@
 package cradle.rancune.once.view.record
 
-import android.media.MediaFormat
 import android.os.Bundle
 import android.view.View
 import com.yanzhenjie.permission.AndPermission
 import com.yanzhenjie.permission.runtime.Permission
-import cradle.rancune.internal.logger.AndroidLog
 import cradle.rancune.internal.utils.IOUtils
 import cradle.rancune.internal.utils.T
-import cradle.rancune.media.EncodedData
-import cradle.rancune.media.AudioEncoder
+import cradle.rancune.media.*
 import cradle.rancune.media.audiorecorder.AudioRecordWorker
 import cradle.rancune.media.audiorecorder.utils.ADTSUtils
 import cradle.rancune.once.Constant
@@ -29,6 +26,8 @@ class AudioRecordActivity : BaseActivity(), View.OnClickListener {
 
     private var worker: AudioRecordWorker? = null
     private var outputStream: OutputStream? = null
+
+    @Volatile
     private var isRecording = false
     private var addADTS = true
 
@@ -40,27 +39,25 @@ class AudioRecordActivity : BaseActivity(), View.OnClickListener {
         radioGroup.setOnCheckedChangeListener { _, id ->
             addADTS = id == R.id.adts
         }
-        val config = AudioRecordWorker.Config()
-        worker = AudioRecordWorker(config, object : AudioRecordWorker.Listener {
-            override fun onState(state: Int) {
-                when (state) {
-                    AudioRecordWorker.STATE_AUDIO_START -> {
+        val config = AudioConfig()
+        worker = AudioRecordWorker(config)
+        worker?.setOnInfoListener(object : OnInfoListener {
+            override fun onInfo(what: Int, extra: Any?) {
+                when (what) {
+                    AudioRecordWorker.INFO_AUDIO_START -> {
                         isRecording = true
                     }
-                    AudioRecordWorker.STATE_AUDIO_STOP -> {
+                    AudioRecordWorker.INFO_AUDIO_STOP -> {
                         isRecording = false
                     }
                 }
             }
-
-            override fun onError(code: Int, e: Throwable?, extra: Any?) {
-                AndroidLog.e(TAG, "error:$code", e)
-                stopRecord()
+        })
+        worker?.setOnErrorListener(object : OnErrorListener {
+            override fun onError(what: Int, extra: Any?, throwable: Throwable?) {
             }
-
-            override fun onFormatChanged(format: MediaFormat) {
-            }
-
+        })
+        worker?.setOnDataListener(object : OnDataListener {
             override fun onOutputAvailable(data: EncodedData) {
                 if (isRecording) {
                     if (outputStream == null) {
@@ -90,7 +87,6 @@ class AudioRecordActivity : BaseActivity(), View.OnClickListener {
                     }
                 }
             }
-
         })
     }
 

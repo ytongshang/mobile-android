@@ -5,17 +5,13 @@ import android.media.MediaCodec
 import android.media.MediaFormat
 import android.os.Build
 import cradle.rancune.internal.logger.AndroidLog
-import cradle.rancune.media.EncodedData
-import cradle.rancune.media.AudioEncoder
+import cradle.rancune.media.*
 import cradle.rancune.media.audiorecorder.AudioRecordWorker
 
 /**
  * Created by Rancune@126.com 2018/7/24.
  */
-class AudioMediaCodecEncoder(
-    private val config: AudioRecordWorker.Config,
-    private val listener: AudioRecordWorker.Listener
-) : AudioEncoder {
+class AudioMediaCodecEncoder(private val config: AudioConfig) : AudioEncoder {
 
     companion object {
         private const val TAG = "AudioMediaCodecEncoder"
@@ -31,6 +27,16 @@ class AudioMediaCodecEncoder(
     private var presentationTimeUs: Long = 0
     private var presentationInterval: Long = 0
     private var unExpectedEndOfStream = false
+    private var infoListener: OnInfoListener? = null
+    private var dataListener: OnDataListener? = null
+
+    override fun setOnInfoListener(infoListener: OnInfoListener?) {
+        this.infoListener = infoListener
+    }
+
+    override fun setOnDataListener(dataListener: OnDataListener?) {
+        this.dataListener = dataListener
+    }
 
     override fun start() {
         sampleBytePerSec = config.sampleRate * config.sizeOfChannel * config.byteOfFormat
@@ -104,7 +110,7 @@ class AudioMediaCodecEncoder(
                 // 输出格式发生了变化
                 // 一般是第一帧的输出，格式的回调
                 val format = encoder!!.outputFormat
-                listener.onFormatChanged(format)
+                infoListener?.onInfo(AudioRecordWorker.INFO_OUTPUT_MEDIAFORMAT_CHANGED)
             } else if (buffIndex < 0) {
                 // 一般也不会发生
                 AndroidLog.w(TAG, "Mediacodec dequeueOutputBuffer, buffIndex < 0")
@@ -116,13 +122,15 @@ class AudioMediaCodecEncoder(
                     encoder!!.outputBuffers[buffIndex]!!
                 }
                 // 消耗编码后的数据
+                buffer.position(info.offset)
+                buffer.limit(info.offset + info.size)
                 val data = EncodedData()
                 data.offset = 0
                 data.size = info.size
                 data.byteArray = ByteArray(data.size)
                 buffer.get(data.byteArray!!, data.offset, data.size)
                 data.bufferInfo = info
-                listener.onOutputAvailable(data)
+                dataListener?.onOutputAvailable(data)
                 encoder!!.releaseOutputBuffer(buffIndex, false)
                 if (info.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
                     if (!endOfStream) {

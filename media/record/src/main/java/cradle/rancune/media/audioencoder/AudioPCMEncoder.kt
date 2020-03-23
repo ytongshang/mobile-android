@@ -2,22 +2,28 @@ package cradle.rancune.media.audioencoder
 
 import android.media.AudioRecord
 import cradle.rancune.internal.logger.AndroidLog
-import cradle.rancune.media.EncodedData
-import cradle.rancune.media.AudioEncoder
-import cradle.rancune.media.audiorecorder.AudioRecordWorker
+import cradle.rancune.media.*
 
 /**
  * Created by Rancune@126.com 2020/3/15.
  */
-class AudioPCMEncoder(
-    private val config: AudioRecordWorker.Config,
-    private val listener: AudioRecordWorker.Listener
-) : AudioEncoder {
+class AudioPCMEncoder(config: AudioConfig) : AudioEncoder {
 
     private val byteArraySize: Int = if (config.minBufferSize > 0) {
         config.minBufferSize
     } else {
         2048
+    }
+
+    private var infoListener: OnInfoListener? = null
+    private var dataListener: OnDataListener? = null
+
+    override fun setOnInfoListener(infoListener: OnInfoListener?) {
+        this.infoListener = infoListener
+    }
+
+    override fun setOnDataListener(dataListener: OnDataListener?) {
+        this.dataListener = dataListener
     }
 
     override fun start() {
@@ -46,7 +52,7 @@ class AudioPCMEncoder(
             }
             size > 0 -> {
                 data.size = size
-                listener.onOutputAvailable(data)
+                dataListener?.onOutputAvailable(data)
             }
         }
     }

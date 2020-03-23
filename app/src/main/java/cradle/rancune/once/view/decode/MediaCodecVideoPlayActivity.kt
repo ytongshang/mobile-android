@@ -9,7 +9,11 @@ import android.view.SurfaceHolder
 import android.view.WindowManager
 import android.widget.RelativeLayout
 import cradle.rancune.internal.logger.AndroidLog
+import cradle.rancune.media.EncodedData
+import cradle.rancune.media.OnDataListener
+import cradle.rancune.media.OnErrorListener
 import cradle.rancune.media.OnInfoListener
+import cradle.rancune.media.audioplayer.AudioTrackPlayer
 import cradle.rancune.media.decoder.MediaDecoder
 import cradle.rancune.media.mediasource.FileExtractor
 import cradle.rancune.once.Constant
@@ -17,6 +21,7 @@ import cradle.rancune.once.R
 import cradle.rancune.once.view.base.BaseActivity
 import kotlinx.android.synthetic.main.once_activity_mediacode_video.*
 import java.io.File
+import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 /**
@@ -31,10 +36,14 @@ class MediaCodecVideoPlayActivity : BaseActivity(), Handler.Callback {
     }
 
     private var isSurfaceCreated: Boolean = false
-    private var mediaSource: FileExtractor? = null
-    private var decoder: MediaDecoder? = null
     private val fileName = "westworld.mp4"
-    private val lock = Any()
+
+    private var audioSource: FileExtractor? = null
+    private var audioDecoder: MediaDecoder? = null
+    private var videoSource: FileExtractor? = null
+    private var videoDecoder: MediaDecoder? = null
+
+    private var audioPlayer: AudioTrackPlayer? = null
 
     @Volatile
     private var isDecoding = false
@@ -68,37 +77,83 @@ class MediaCodecVideoPlayActivity : BaseActivity(), Handler.Callback {
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaSource?.close()
-        mediaSource = null
-        decoder?.release()
-        decoder = null
+        audioSource?.close()
+        audioDecoder?.release()
+        audioDecoder = null
+        videoSource?.close()
+        videoDecoder?.release()
+        videoDecoder = null
+        audioPlayer?.release()
+        audioPlayer = null
         handler.removeCallbacksAndMessages(null)
     }
 
     private fun startPlay(sf: Surface) {
         thread {
             val f = File(getExternalFilesDir(Constant.VIDEO_FILE), fileName)
-            mediaSource = FileExtractor(f.absolutePath)
-            mediaSource?.prepare()
-            mediaSource?.findTrack("video")
-            val format = mediaSource?.mediaFormat ?: return@thread
+            videoSource = FileExtractor(f.absolutePath)
+            videoSource?.prepare()
+            videoSource?.findTrack("video")
+            val format = videoSource?.mediaFormat ?: return@thread
             // 一般可以在这里使用新的输出格式，比如压缩就可以在这里做
-            decoder = MediaDecoder(format, mediaSource!!, sf)
-            decoder?.prepare()
-            decoder?.start()
-            decoder?.onInfoListener = object : OnInfoListener {
+            videoDecoder = MediaDecoder(format, videoSource!!, sf)
+            videoDecoder?.prepare()
+            videoDecoder?.start()
+            val startTime = SystemClock.uptimeMillis()
+            videoDecoder?.setOnInfoListener(object : OnInfoListener {
                 override fun onInfo(what: Int, extra: Any?) {
                     val msg = handler.obtainMessage(MSG_INFO)
                     msg.arg1 = what
                     handler.sendMessage(msg)
                 }
-            }
+            })
+            videoDecoder?.setOnErrorListener(object : OnErrorListener {
+                override fun onError(what: Int, extra: Any?, throwable: Throwable?) {
+                }
+            })
+            videoDecoder?.setOnDataListener(object : OnDataListener {
+                override fun onOutputAvailable(data: EncodedData) {
+                    val pts = data.bufferInfo?.presentationTimeUs ?: return
+                    val time = (SystemClock.uptimeMillis() - startTime) * 1000
+                    if (pts > time) {
+                        // 同步到外部时间
+                        TimeUnit.MICROSECONDS.sleep(pts-time)
+                    }
+                }
+            })
 
             while (isDecoding) {
-                decoder?.offerDecoder()
-                decoder?.drainDecoder()
+                videoDecoder?.offerDecoder()
+                videoDecoder?.drainDecoder()
             }
         }
+//        thread(start = false) {
+//            val f = File(getExternalFilesDir(Constant.VIDEO_FILE), fileName)
+//            audioSource = FileExtractor(f.absolutePath)
+//            audioSource?.prepare()
+//            audioSource?.findTrack("audio")
+//            val format = audioSource?.mediaFormat ?: return@thread
+//            // 一般可以在这里使用新的输出格式，比如压缩就可以在这里做
+//            audioDecoder = MediaDecoder(format, audioSource!!, null)
+//            audioDecoder?.setOnInfoListener(object : OnInfoListener {
+//                override fun onInfo(what: Int, extra: Any?) {
+//                }
+//            })
+//            audioDecoder?.setOnErrorListener(object : OnErrorListener {
+//                override fun onError(what: Int, extra: Any?, throwable: Throwable?) {
+//                }
+//            })
+//            audioDecoder?.setOnDataListener(object : OnDataListener {
+//                override fun onOutputAvailable(data: EncodedData) {
+//                }
+//            })
+//            audioDecoder?.prepare()
+//            audioDecoder?.start()
+//            while (isDecoding) {
+//                audioDecoder?.offerDecoder()
+//                audioDecoder?.drainDecoder()
+//            }
+//        }
     }
 
     override fun handleMessage(msg: Message): Boolean {
@@ -118,7 +173,7 @@ class MediaCodecVideoPlayActivity : BaseActivity(), Handler.Callback {
         if (!isSurfaceCreated) {
             return
         }
-        val coder = decoder ?: return
+        val coder = videoDecoder ?: return
         val output = coder.outputFormat ?: return
         val w = output.getInteger(MediaFormat.KEY_WIDTH)
         val h = output.getInteger(MediaFormat.KEY_HEIGHT)

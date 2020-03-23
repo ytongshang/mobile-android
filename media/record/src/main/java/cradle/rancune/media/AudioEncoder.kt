@@ -3,7 +3,6 @@ package cradle.rancune.media
 import android.media.AudioRecord
 import cradle.rancune.media.audioencoder.AudioMediaCodecEncoder
 import cradle.rancune.media.audioencoder.AudioPCMEncoder
-import cradle.rancune.media.audiorecorder.AudioRecordWorker
 
 /**
  * Created by Rancune@126.com 2020/3/18.
@@ -12,36 +11,27 @@ interface AudioEncoder {
 
     companion object {
         val MEDIA_CODEC = object : Factory {
-            override fun create(
-                config: AudioRecordWorker.Config,
-                listener: AudioRecordWorker.Listener
-            ): AudioEncoder {
-                return AudioMediaCodecEncoder(
-                    config,
-                    listener
-                )
+            override fun create(config: AudioConfig): AudioEncoder {
+                return AudioMediaCodecEncoder(config)
             }
         }
 
         val PCM = object : Factory {
-            override fun create(
-                config: AudioRecordWorker.Config,
-                listener: AudioRecordWorker.Listener
-            ): AudioEncoder {
-                return AudioPCMEncoder(
-                    config,
-                    listener
-                )
+            override fun create(config: AudioConfig): AudioEncoder {
+                return AudioPCMEncoder(config)
             }
         }
     }
 
     interface Factory {
         fun create(
-            config: AudioRecordWorker.Config,
-            listener: AudioRecordWorker.Listener
+            config: AudioConfig
         ): AudioEncoder
     }
+
+    fun setOnInfoListener(infoListener: OnInfoListener?)
+
+    fun setOnDataListener(dataListener: OnDataListener?)
 
     fun start()
 

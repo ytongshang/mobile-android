@@ -4,11 +4,7 @@ import android.media.MediaCodec
 import android.media.MediaFormat
 import android.os.Build
 import android.view.Surface
-import cradle.rancune.media.MediaSource
-import cradle.rancune.media.OnDataListener
-import cradle.rancune.media.OnErrorListener
-import cradle.rancune.media.OnInfoListener
-import java.nio.ByteBuffer
+import cradle.rancune.media.*
 
 
 /**
@@ -34,12 +30,24 @@ class MediaDecoder(
     private var decoder: MediaCodec? = null
     private var isStopped: Boolean = true
     private var isEndOfStream: Boolean = false
-
-    var onErrorListener: OnErrorListener? = null
-    var onInfoListener: OnInfoListener? = null
-    var onDataListener: OnDataListener? = null
     var outputFormat: MediaFormat? = null
         private set
+
+    private var errorListener: OnErrorListener? = null
+    private var infoListener: OnInfoListener? = null
+    private var dataListener: OnDataListener? = null
+
+    fun setOnInfoListener(infoListener: OnInfoListener?) {
+        this.infoListener = infoListener
+    }
+
+    fun setOnErrorListener(errorListener: OnErrorListener?) {
+        this.errorListener = errorListener
+    }
+
+    fun setOnDataListener(dataListener: OnDataListener?) {
+        this.dataListener = dataListener
+    }
 
     fun prepare() {
         val mine = mediaFormat.getString(MediaFormat.KEY_MIME)
@@ -49,11 +57,11 @@ class MediaDecoder(
         }
         try {
             decoder = MediaCodec.createDecoderByType(mine)
+            decoder?.configure(mediaFormat, surface, null, 0)
         } catch (e: Exception) {
             onError(ERROR_CREATE_MEDIACODEC, "", e)
             return
         }
-        decoder?.configure(mediaFormat, surface, null, 0)
     }
 
     fun start() {
@@ -70,7 +78,7 @@ class MediaDecoder(
             isStopped = true
             decoder?.stop()
         } catch (e: Exception) {
-            onError(ERROR_STOP_DECODER, "", e)
+            errorListener?.onError(ERROR_STOP_DECODER, "", e)
         }
     }
 
@@ -123,24 +131,36 @@ class MediaDecoder(
                 }
                 index == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
                     outputFormat = coder.outputFormat
-                    onInfo(INFO_OUTPUT_MEDIAFORMAT_CHANGED)
+                    infoListener?.onInfo(INFO_OUTPUT_MEDIAFORMAT_CHANGED)
                 }
                 index < 0 -> {
                 }
                 else -> {
                     if (surface != null) {
-                        // output有surface时，getOutputBuffer获取为空
-                        onData(null, bufferInfo)
+                        // 这里可能要做延迟的
+                        dataListener?.onOutputAvailable(EncodedData(bufferInfo = bufferInfo))
                         coder.releaseOutputBuffer(index, true)
+                        // output有surface时，getOutputBuffer获取为空
                     } else {
-                        val buffer = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            coder.getOutputBuffer(index)
-                        } else {
-                            val b = coder.outputBuffers[index]
-                            b?.clear()
-                            b
-                        }) ?: return
-                        onData(buffer, bufferInfo)
+                        dataListener?.let {
+                            val buffer =
+                                (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                    coder.getOutputBuffer(index)
+                                } else {
+                                    val b = coder.outputBuffers[index]
+                                    b?.clear()
+                                    b
+                                }) ?: return
+                            buffer.position(bufferInfo.offset)
+                            buffer.limit(bufferInfo.offset + bufferInfo.size)
+                            val data = EncodedData()
+                            data.offset = 0
+                            data.size = bufferInfo.size
+                            data.byteArray = ByteArray(data.size)
+                            buffer.get(data.byteArray!!, data.offset, data.size)
+                            data.bufferInfo = bufferInfo
+                            it.onOutputAvailable(data)
+                        }
                     }
                 }
             }
@@ -148,14 +168,6 @@ class MediaDecoder(
     }
 
     private fun onError(what: Int, extra: Any? = null, throwable: Throwable? = null) {
-        onErrorListener?.onError(what, extra, throwable)
-    }
-
-    private fun onInfo(what: Int) {
-        onInfoListener?.onInfo(what)
-    }
-
-    private fun onData(buffer: ByteBuffer?, info: MediaCodec.BufferInfo) {
-        onDataListener?.onOutputAvailable(buffer, info)
+        errorListener?.onError(what, extra, throwable)
     }
 }
