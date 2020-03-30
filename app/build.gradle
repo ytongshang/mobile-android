@@ -12,6 +12,10 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+
+        ndk {
+            abiFilters 'armeabi-v7a'
+        }
     }
 
     buildTypes {
@@ -20,6 +24,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
 
 }
 
@@ -37,4 +42,5 @@ dependencies {
     implementation project(path: ':internal:core')
     implementation project(path: ':media:record')
     implementation project(path: ':media:player')
+    implementation project(path: ':media:ffmpeg')
 }

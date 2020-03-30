@@ -7,7 +7,7 @@ import android.util.Log
  */
 object AndroidLog : ILog {
     @Volatile
-    private var logLevel = ILog.INFO
+    private var logLevel = ILog.VERBOSE
 
     override fun setLogLevel(level: Int) {
         var l = level

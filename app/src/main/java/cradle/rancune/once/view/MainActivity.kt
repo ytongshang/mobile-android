@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import cradle.rancune.once.R
 import cradle.rancune.once.view.base.BaseActivity
 import cradle.rancune.once.view.decode.MediaCodecVideoPlayActivity
+import cradle.rancune.once.view.jni.JniTestActivity
 import cradle.rancune.once.view.player.PCMPlayerActivity
 import cradle.rancune.once.view.record.AudioRecordActivity
 import kotlinx.android.synthetic.main.once_activity_main.*
@@ -49,6 +50,11 @@ class MainActivity : BaseActivity() {
         codecvideo.title = R.string.once_activity_video_player
         codecvideo.target = MediaCodecVideoPlayActivity::class.java
         pages.add(codecvideo)
+
+        val jniTest = Page()
+        jniTest.title = R.string.once_activity_jni_test
+        jniTest.target = JniTestActivity::class.java
+        pages.add(jniTest)
 
         adapter?.notifyDataSetChanged()
     }
