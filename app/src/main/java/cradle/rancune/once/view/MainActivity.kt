@@ -15,6 +15,7 @@ import cradle.rancune.once.R
 import cradle.rancune.once.view.base.BaseActivity
 import cradle.rancune.once.view.decode.MediaCodecVideoPlayActivity
 import cradle.rancune.once.view.jni.JniTestActivity
+import cradle.rancune.once.view.player.AACPlayerActivity
 import cradle.rancune.once.view.player.PCMPlayerActivity
 import cradle.rancune.once.view.record.AudioRecordActivity
 import kotlinx.android.synthetic.main.once_activity_main.*
@@ -45,6 +46,12 @@ class MainActivity : BaseActivity() {
         pcmPlayer.title = R.string.once_activity_pcm_player
         pcmPlayer.target = PCMPlayerActivity::class.java
         pages.add(pcmPlayer)
+
+        val aacPlayer = Page()
+        aacPlayer.title = R.string.once_activity_aac_player
+        aacPlayer.target = AACPlayerActivity::class.java
+        pages.add(aacPlayer)
+
 
         val codecvideo = Page()
         codecvideo.title = R.string.once_activity_video_player

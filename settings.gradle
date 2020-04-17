@@ -4,7 +4,6 @@ include ':app'
 include ':internal:core'
 
 include ':media:record'
-include ':media:player'
 include ':media:ffmpeg'
 
 include ':tech:aop'

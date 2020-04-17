@@ -41,6 +41,5 @@ dependencies {
 
     implementation project(path: ':internal:core')
     implementation project(path: ':media:record')
-    implementation project(path: ':media:player')
     implementation project(path: ':media:ffmpeg')
 }

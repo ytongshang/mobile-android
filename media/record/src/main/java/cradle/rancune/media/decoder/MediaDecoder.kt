@@ -28,7 +28,10 @@ class MediaDecoder(
     }
 
     private var decoder: MediaCodec? = null
+    @Volatile
     private var isStopped: Boolean = true
+    @Volatile
+    private var isReleased: Boolean = true
     private var isEndOfStream: Boolean = false
     var outputFormat: MediaFormat? = null
         private set
@@ -62,6 +65,7 @@ class MediaDecoder(
             onError(ERROR_CREATE_MEDIACODEC, "", e)
             return
         }
+        isReleased = false
     }
 
     fun start() {
@@ -83,12 +87,13 @@ class MediaDecoder(
     }
 
     fun release() {
+        isReleased = true
         decoder?.release()
         decoder = null
     }
 
     fun offerDecoder() {
-        if (isStopped) {
+        if (isStopped || isReleased) {
             return
         }
         val coder = decoder ?: return
@@ -121,6 +126,9 @@ class MediaDecoder(
     }
 
     fun drainDecoder() {
+        if (isStopped || isReleased) {
+            return
+        }
         val coder = decoder ?: return
         loop@ while (true) {
             val bufferInfo = MediaCodec.BufferInfo()
@@ -148,7 +156,6 @@ class MediaDecoder(
                                     coder.getOutputBuffer(index)
                                 } else {
                                     val b = coder.outputBuffers[index]
-                                    b?.clear()
                                     b
                                 }) ?: return
                             buffer.position(bufferInfo.offset)

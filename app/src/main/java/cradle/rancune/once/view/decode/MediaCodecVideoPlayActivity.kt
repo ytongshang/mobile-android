@@ -2,6 +2,8 @@ package cradle.rancune.once.view.decode
 
 import android.content.Context
 import android.graphics.Point
+import android.media.AudioFormat
+import android.media.AudioManager
 import android.media.MediaFormat
 import android.os.*
 import android.view.Surface
@@ -109,6 +111,7 @@ class MediaCodecVideoPlayActivity : BaseActivity(), Handler.Callback {
             })
             videoDecoder?.setOnErrorListener(object : OnErrorListener {
                 override fun onError(what: Int, extra: Any?, throwable: Throwable?) {
+                    AndroidLog.e(TAG, "videoDEcoder error, code:$what, extra:$extra", throwable)
                 }
             })
             videoDecoder?.setOnDataListener(object : OnDataListener {
@@ -117,7 +120,7 @@ class MediaCodecVideoPlayActivity : BaseActivity(), Handler.Callback {
                     val time = (SystemClock.uptimeMillis() - startTime) * 1000
                     if (pts > time) {
                         // 同步到外部时间
-                        TimeUnit.MICROSECONDS.sleep(pts-time)
+                        TimeUnit.MICROSECONDS.sleep(pts - time)
                     }
                 }
             })
@@ -127,33 +130,62 @@ class MediaCodecVideoPlayActivity : BaseActivity(), Handler.Callback {
                 videoDecoder?.drainDecoder()
             }
         }
-//        thread(start = false) {
-//            val f = File(getExternalFilesDir(Constant.VIDEO_FILE), fileName)
-//            audioSource = FileExtractor(f.absolutePath)
-//            audioSource?.prepare()
-//            audioSource?.findTrack("audio")
-//            val format = audioSource?.mediaFormat ?: return@thread
-//            // 一般可以在这里使用新的输出格式，比如压缩就可以在这里做
-//            audioDecoder = MediaDecoder(format, audioSource!!, null)
-//            audioDecoder?.setOnInfoListener(object : OnInfoListener {
-//                override fun onInfo(what: Int, extra: Any?) {
-//                }
-//            })
-//            audioDecoder?.setOnErrorListener(object : OnErrorListener {
-//                override fun onError(what: Int, extra: Any?, throwable: Throwable?) {
-//                }
-//            })
-//            audioDecoder?.setOnDataListener(object : OnDataListener {
-//                override fun onOutputAvailable(data: EncodedData) {
-//                }
-//            })
-//            audioDecoder?.prepare()
-//            audioDecoder?.start()
-//            while (isDecoding) {
-//                audioDecoder?.offerDecoder()
-//                audioDecoder?.drainDecoder()
-//            }
-//        }
+        thread {
+            val f = File(getExternalFilesDir(Constant.VIDEO_FILE), fileName)
+            audioSource = FileExtractor(f.absolutePath)
+            audioSource?.prepare()
+            audioSource?.findTrack("audio")
+            val format = audioSource?.mediaFormat ?: return@thread
+            audioDecoder = MediaDecoder(format, audioSource!!, null)
+            audioDecoder?.setOnInfoListener(object : OnInfoListener {
+                override fun onInfo(what: Int, extra: Any?) {
+                    if (what == MediaDecoder.INFO_OUTPUT_MEDIAFORMAT_CHANGED) {
+                        if (audioPlayer == null) {
+                            val config = AudioTrackPlayer.Config()
+                            val outputFormat = audioDecoder!!.outputFormat!!
+                            config.streamStype = AudioManager.STREAM_MUSIC
+                            // 采样率
+                            config.sampleRate = outputFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE)
+                            // channel
+                            val channelCount =
+                                outputFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
+                            config.channel =
+                                if (channelCount > 1) {
+                                    AudioFormat.CHANNEL_OUT_STEREO
+                                } else {
+                                    AudioFormat.CHANNEL_OUT_MONO
+                                }
+                            // encoding bits
+                            val encoding = outputFormat.getInteger(MediaFormat.KEY_PCM_ENCODING)
+                            val encodingFormat =
+                                if (encoding == 2) AudioFormat.ENCODING_PCM_16BIT else AudioFormat.ENCODING_PCM_8BIT
+                            config.audioEncodingFormat = encodingFormat
+                            audioPlayer = AudioTrackPlayer(config)
+                            audioPlayer?.prepare()
+                            audioPlayer?.start()
+                        }
+                    }
+                }
+            })
+            audioDecoder?.setOnErrorListener(object : OnErrorListener {
+                override fun onError(what: Int, extra: Any?, throwable: Throwable?) {
+                    AndroidLog.e(TAG, "audioDecoder error, code:$what, extra:$extra", throwable)
+                }
+            })
+            audioDecoder?.setOnDataListener(object : OnDataListener {
+                override fun onOutputAvailable(data: EncodedData) {
+                    audioPlayer?.offer(data.byteArray!!, data.offset, data.size)
+                }
+            })
+
+            audioDecoder?.prepare()
+            audioDecoder?.start()
+
+            while (isDecoding) {
+                audioDecoder?.offerDecoder()
+                audioDecoder?.drainDecoder()
+            }
+        }
     }
 
     override fun handleMessage(msg: Message): Boolean {
