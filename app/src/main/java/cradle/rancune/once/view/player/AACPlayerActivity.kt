@@ -64,10 +64,22 @@ class AACPlayerActivity : BaseActivity() {
                             val config = AudioTrackPlayer.Config()
                             val outputFormat = audioDecoder!!.outputFormat!!
                             config.streamStype = AudioManager.STREAM_MUSIC
-                            config.channel = AudioFormat.CHANNEL_OUT_STEREO
+                            // 采样率
                             config.sampleRate = outputFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE)
-                            config.audioEncodingFormat =
-                                outputFormat.getInteger(MediaFormat.KEY_PCM_ENCODING)
+                            // channel
+                            val channelCount =
+                                outputFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
+                            config.channel =
+                                if (channelCount > 1) {
+                                    AudioFormat.CHANNEL_OUT_STEREO
+                                } else {
+                                    AudioFormat.CHANNEL_OUT_MONO
+                                }
+                            // encoding bits
+                            val encoding = outputFormat.getInteger(MediaFormat.KEY_PCM_ENCODING)
+                            val encodingFormat =
+                                if (encoding == 2) AudioFormat.ENCODING_PCM_16BIT else AudioFormat.ENCODING_PCM_8BIT
+                            config.audioEncodingFormat = encodingFormat
                             audioPlayer = AudioTrackPlayer(config)
                             audioPlayer?.prepare()
                             audioPlayer?.start()

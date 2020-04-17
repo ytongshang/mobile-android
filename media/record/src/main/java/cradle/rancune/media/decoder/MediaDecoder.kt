@@ -4,6 +4,7 @@ import android.media.MediaCodec
 import android.media.MediaFormat
 import android.os.Build
 import android.view.Surface
+import cradle.rancune.internal.logger.AndroidLog
 import cradle.rancune.media.*
 
 
@@ -77,15 +78,6 @@ class MediaDecoder(
         }
     }
 
-    fun stop() {
-        try {
-            isStopped = true
-            decoder?.stop()
-        } catch (e: Exception) {
-            errorListener?.onError(ERROR_STOP_DECODER, "", e)
-        }
-    }
-
     fun release() {
         isReleased = true
         decoder?.release()
@@ -129,45 +121,49 @@ class MediaDecoder(
         if (isStopped || isReleased) {
             return
         }
+        AndroidLog.d("Rancune", "drain:" + Thread.currentThread().name)
         val coder = decoder ?: return
-        loop@ while (true) {
-            val bufferInfo = MediaCodec.BufferInfo()
-            val index = coder.dequeueOutputBuffer(bufferInfo, TIMEOUTUS)
-            when {
-                index == MediaCodec.INFO_TRY_AGAIN_LATER -> {
-                    break@loop
-                }
-                index == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
-                    outputFormat = coder.outputFormat
-                    infoListener?.onInfo(INFO_OUTPUT_MEDIAFORMAT_CHANGED)
-                }
-                index < 0 -> {
-                }
-                else -> {
-                    if (surface != null) {
-                        // 这里可能要做延迟的
-                        dataListener?.onOutputAvailable(EncodedData(bufferInfo = bufferInfo))
-                        coder.releaseOutputBuffer(index, true)
-                        // output有surface时，getOutputBuffer获取为空
-                    } else {
-                        dataListener?.let {
-                            val buffer =
-                                (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                    coder.getOutputBuffer(index)
-                                } else {
-                                    val b = coder.outputBuffers[index]
-                                    b
-                                }) ?: return
-                            buffer.position(bufferInfo.offset)
-                            buffer.limit(bufferInfo.offset + bufferInfo.size)
-                            val data = EncodedData()
-                            data.offset = 0
-                            data.size = bufferInfo.size
-                            data.byteArray = ByteArray(data.size)
-                            buffer.get(data.byteArray!!, data.offset, data.size)
-                            data.bufferInfo = bufferInfo
-                            it.onOutputAvailable(data)
-                        }
+        val bufferInfo = MediaCodec.BufferInfo()
+        val index = coder.dequeueOutputBuffer(bufferInfo, TIMEOUTUS)
+        when {
+            index == MediaCodec.INFO_TRY_AGAIN_LATER -> {
+            }
+            index == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
+                outputFormat = coder.outputFormat
+                infoListener?.onInfo(INFO_OUTPUT_MEDIAFORMAT_CHANGED)
+            }
+            index < 0 -> {
+            }
+            else -> {
+                if (surface != null) {
+                    // 这里可能要做延迟的
+                    dataListener?.onOutputAvailable(EncodedData(bufferInfo = bufferInfo))
+                    if (isReleased) {
+                        return
+                    }
+                    coder.releaseOutputBuffer(index, true)
+                    // output有surface时，getOutputBuffer获取为空
+                } else {
+                    dataListener?.let {
+                        val buffer =
+                            (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                coder.getOutputBuffer(index)
+                            } else {
+                                val b = coder.outputBuffers[index]
+                                if (b != null) {
+                                    b.position(bufferInfo.offset)
+                                    b.limit(bufferInfo.offset + bufferInfo.size)
+                                }
+                                b
+                            }) ?: return
+                        val data = EncodedData()
+                        data.offset = 0
+                        data.size = bufferInfo.size
+                        data.byteArray = ByteArray(data.size)
+                        buffer.get(data.byteArray!!, data.offset, data.size)
+                        data.bufferInfo = bufferInfo
+                        it.onOutputAvailable(data)
+                        coder.releaseOutputBuffer(index, false)
                     }
                 }
             }
@@ -175,6 +171,7 @@ class MediaDecoder(
     }
 
     private fun onError(what: Int, extra: Any? = null, throwable: Throwable? = null) {
+        release()
         errorListener?.onError(what, extra, throwable)
     }
 }

@@ -97,8 +97,7 @@ class AudioTrackPlayer(private val config: Config) {
     fun offer(data: ByteArray, offsetInBytes: Int, sizeInBytes: Int) {
         if (audioTrack?.state == AudioTrack.STATE_INITIALIZED) {
             audioTrack?.play()
-            val write = audioTrack?.write(data, offsetInBytes, sizeInBytes)
-            when (write) {
+            when (val write = audioTrack?.write(data, offsetInBytes, sizeInBytes)) {
                 AudioRecord.ERROR_INVALID_OPERATION -> {
                     AndroidLog.d("Rancune", "error: ERROR_INVALID_OPERATION")
                 }

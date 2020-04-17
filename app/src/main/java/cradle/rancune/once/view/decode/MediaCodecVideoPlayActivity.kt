@@ -78,20 +78,13 @@ class MediaCodecVideoPlayActivity : BaseActivity(), Handler.Callback {
     }
 
     override fun onDestroy() {
+        isDecoding = false
         super.onDestroy()
-        audioSource?.close()
-        audioDecoder?.release()
-        audioDecoder = null
-        videoSource?.close()
-        videoDecoder?.release()
-        videoDecoder = null
-        audioPlayer?.release()
-        audioPlayer = null
         handler.removeCallbacksAndMessages(null)
     }
 
     private fun startPlay(sf: Surface) {
-        thread {
+        thread{
             val f = File(getExternalFilesDir(Constant.VIDEO_FILE), fileName)
             videoSource = FileExtractor(f.absolutePath)
             videoSource?.prepare()
@@ -126,11 +119,16 @@ class MediaCodecVideoPlayActivity : BaseActivity(), Handler.Callback {
             })
 
             while (isDecoding) {
+                AndroidLog.d("Rancune", "while:" + Thread.currentThread().name)
                 videoDecoder?.offerDecoder()
                 videoDecoder?.drainDecoder()
             }
+
+            videoSource?.close()
+            videoDecoder?.release()
+            videoDecoder = null
         }
-        thread {
+        thread(start = false) {
             val f = File(getExternalFilesDir(Constant.VIDEO_FILE), fileName)
             audioSource = FileExtractor(f.absolutePath)
             audioSource?.prepare()
@@ -185,6 +183,13 @@ class MediaCodecVideoPlayActivity : BaseActivity(), Handler.Callback {
                 audioDecoder?.offerDecoder()
                 audioDecoder?.drainDecoder()
             }
+
+            audioSource?.close()
+            audioDecoder?.release()
+            audioDecoder = null
+
+            audioPlayer?.release()
+            audioPlayer = null
         }
     }
 

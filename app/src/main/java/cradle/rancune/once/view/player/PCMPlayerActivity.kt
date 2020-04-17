@@ -47,7 +47,7 @@ class PCMPlayerActivity : BaseActivity() {
             var input: InputStream? = null
             try {
                 val dir = this.getExternalFilesDir("audio")
-                val file = File(dir, "test.aac")
+                val file = File(dir, "test.pcm")
                 input = FileInputStream(file)
                 val length = config.minBufferSize
                 val array = ByteArray(length)
