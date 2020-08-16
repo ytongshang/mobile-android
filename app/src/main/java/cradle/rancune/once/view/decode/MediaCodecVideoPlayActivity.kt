@@ -128,7 +128,7 @@ class MediaCodecVideoPlayActivity : BaseActivity(), Handler.Callback {
             videoDecoder?.release()
             videoDecoder = null
         }
-        thread(start = false) {
+        thread(start = true) {
             val f = File(getExternalFilesDir(Constant.VIDEO_FILE), fileName)
             audioSource = FileExtractor(f.absolutePath)
             audioSource?.prepare()

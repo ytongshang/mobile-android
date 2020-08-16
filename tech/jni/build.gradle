@@ -14,6 +14,7 @@ android {
 
         consumerProguardFiles 'proguard-rules.pro'
 
+
         ndk {
             abiFilters 'armeabi-v7a'
         }
@@ -43,17 +44,6 @@ android {
             path "src/main/cpp/CMakeLists.txt"
             version "3.10.2"
         }
-    }
-
-    packagingOptions {
-        // pickFirsts:当出现重复文件，会使用第一个匹配的文件打包进入apk
-        pickFirst 'lib/armeabi-v7a/libavcodec.so'
-        pickFirst 'lib/armeabi-v7a/libavdevice.so'
-        pickFirst 'lib/armeabi-v7a/libavfilter.so'
-        pickFirst 'lib/armeabi-v7a/libavformat.so'
-        pickFirst 'lib/armeabi-v7a/libavutil.so'
-        pickFirst 'lib/armeabi-v7a/libswresample.so'
-        pickFirst 'lib/armeabi-v7a/libswscale.so'
     }
 }
 

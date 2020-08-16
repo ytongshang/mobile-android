@@ -7,3 +7,4 @@ include ':media:record'
 include ':media:ffmpeg'
 
 include ':tech:aop'
+include ':tech:jni'

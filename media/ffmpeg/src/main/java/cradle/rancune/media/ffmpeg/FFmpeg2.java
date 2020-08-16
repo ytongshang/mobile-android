@@ -8,4 +8,5 @@ public class FFmpeg2 {
         System.loadLibrary("native-lib");
     }
     public native String getCoder();
+
 }

@@ -50,6 +50,7 @@ proguard/
 bs_ks.png
 
 ./gradle.properties
+.cxx/
 
 
 
