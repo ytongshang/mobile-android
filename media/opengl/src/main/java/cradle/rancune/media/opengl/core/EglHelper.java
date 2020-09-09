@@ -147,16 +147,13 @@ public class EglHelper {
     }
 
     public void pause() {
-        if (mSurface == EGL14.EGL_NO_SURFACE) {
-            return;
-        }
-        EGL14.eglMakeCurrent(mDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
-        EGL14.eglDestroySurface(mDisplay, mSurface);
-        mSurface = EGL14.EGL_NO_SURFACE;
+
     }
 
     public void destroy() {
-        pause();
+        EGL14.eglMakeCurrent(mDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
+        EGL14.eglDestroySurface(mDisplay, mSurface);
+        mSurface = EGL14.EGL_NO_SURFACE;
         EGL14.eglDestroyContext(mDisplay, mContext);
         EGL14.eglReleaseThread();
         EGL14.eglTerminate(mDisplay);
