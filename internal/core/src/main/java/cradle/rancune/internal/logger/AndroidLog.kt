@@ -21,42 +21,42 @@ object AndroidLog : ILog {
     }
 
     override fun getDefaultTag(): String {
-        return "Router"
+        return "Rancune"
     }
 
     override fun v(tag: String?, msg: String?) {
         if (logLevel <= ILog.VERBOSE) {
-            Log.v(getTag(tag), msg)
+            Log.v(getTag(tag), msg ?: "null")
         }
     }
 
     override fun d(tag: String?, msg: String?) {
         if (logLevel <= ILog.DEBUG) {
-            Log.d(getTag(tag), msg)
+            Log.d(getTag(tag), msg ?: "null")
         }
     }
 
     override fun i(tag: String?, msg: String?) {
         if (logLevel <= ILog.INFO) {
-            Log.i(getTag(tag), msg)
+            Log.i(getTag(tag), msg ?: "null")
         }
     }
 
     override fun w(tag: String?, msg: String?) {
         if (logLevel <= ILog.WARN) {
-            Log.w(getTag(tag), msg)
+            Log.w(getTag(tag), msg ?: "null")
         }
     }
 
     override fun e(tag: String?, msg: String?) {
         if (logLevel <= ILog.ERROR) {
-            Log.e(getTag(tag), msg)
+            Log.e(getTag(tag), msg ?: "null")
         }
     }
 
     override fun e(tag: String?, msg: String?, tr: Throwable?) {
         if (logLevel <= ILog.ERROR) {
-            Log.e(getTag(tag), msg, tr)
+            Log.e(getTag(tag), msg ?: "null", tr)
         }
     }
 
