@@ -52,7 +52,14 @@ object OpenGL {
         val status = IntArray(1)
         GLES30.glGetShaderiv(shader, GLES30.GL_COMPILE_STATUS, status, 0)
         if (status[0] != GLES30.GL_TRUE) {
-            L.e(TAG, "Can not compile shader")
+            val length = IntArray(1)
+            GLES30.glGetShaderiv(shader, GLES30.GL_INFO_LOG_LENGTH, length, 0)
+            val log = if (length[0] > 0) {
+                "Can not compile shader: ${GLES30.glGetShaderInfoLog(shader)}"
+            } else {
+                "Can not compile shader: Unknown error"
+            }
+            L.e(TAG, log)
             GLES30.glDeleteShader(shader)
             return -1
         }
@@ -78,7 +85,14 @@ object OpenGL {
         val status = IntArray(1)
         GLES30.glGetProgramiv(program, GLES30.GL_LINK_STATUS, status, 0)
         if (status[0] != GLES30.GL_TRUE) {
-            L.d(TAG, "Can not link program")
+            val length = IntArray(1)
+            GLES30.glGetProgramiv(program, GLES30.GL_INFO_LOG_LENGTH, length, 0)
+            val log = if (length[0] > 0) {
+                "Can not link program: ${GLES30.glGetProgramInfoLog(program)}"
+            } else {
+                "Can not link program: Unknown error"
+            }
+            L.e(TAG, log)
             GLES30.glDeleteProgram(program)
             return -1
         }
@@ -88,9 +102,32 @@ object OpenGL {
     fun checkError(op: String) {
         val error = GLES30.glGetError()
         if (error != GLES30.GL_NO_ERROR) {
-            val msg = op + ": glError 0x" + Integer.toHexString(error)
+            val msg = op + " glError :" + errorToString(error)
             L.e(TAG, msg)
             throw RuntimeException(msg)
+        }
+    }
+
+    private fun errorToString(error: Int): String {
+        return when (error) {
+            GLES30.GL_NO_ERROR -> {
+                "GLES30.GL_NO_ERROR"
+            }
+            GLES30.GL_INVALID_ENUM -> {
+                "GLES30.GL_INVALID_ENUM"
+            }
+            GLES30.GL_INVALID_VALUE -> {
+                "GLES30.GL_INVALID_VALUE"
+            }
+            GLES30.GL_INVALID_OPERATION -> {
+                "GLES30.GL_INVALID_OPERATION"
+            }
+            GLES30.GL_OUT_OF_MEMORY -> {
+                "GLES30.GL_OUT_OF_MEMORY"
+            }
+            else -> {
+                "Unknown Error"
+            }
         }
     }
 
