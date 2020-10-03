@@ -1,10 +1,11 @@
+include ':internal:appbase'
 rootProject.name='Once'
 include ':app'
 
 include ':internal:core'
 
 include ':media:record'
-include ':media:ffmpeg'
+//include ':media:ffmpeg'
 include ':media:opengl'
 
 include ':tech:aop'

@@ -1,0 +1,65 @@
+def plugin = {
+    apply plugin: 'kotlin-android'
+    apply plugin: 'kotlin-android-extensions'
+}
+
+def sourceDep = {
+    dependencies {
+        api fileTree(dir: "libs", include: ['*.jar', '*.aar'])
+        implementation rootProject.ext.dependencies['kotlin-stdlib']
+    }
+}
+
+def androidConfig = {
+    android {
+        compileSdkVersion rootProject.ext.android['compileSdkVersion']
+        buildToolsVersion rootProject.ext.android['buildToolsVersion']
+
+        defaultConfig {
+            minSdkVersion rootProject.ext.android['minSdkVersion']
+            targetSdkVersion rootProject.ext.android['targetSdkVersion']
+            versionCode 1
+            versionName "1.0"
+            consumerProguardFiles "consumer-rules.pro"
+        }
+
+        compileOptions {
+            sourceCompatibility rootProject.ext.android.sourceCompatibilityVersion
+            targetCompatibility rootProject.ext.android.targetCompatibilityVersion
+        }
+
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+
+        buildTypes {
+            release {
+                minifyEnabled false
+                proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            }
+        }
+    }
+}
+
+ext.libConfig = {
+    apply plugin: 'com.android.library'
+    plugin()
+    androidConfig()
+
+    dependencies {
+        sourceDep()
+    }
+}
+
+ext.appConfig = {
+    apply plugin: 'com.android.application'
+    plugin()
+
+    androidConfig()
+
+    dependencies {
+        sourceDep()
+    }
+}
+
+
