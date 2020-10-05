@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.4.1)
 
+IF (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Windows")
+    ADD_DEFINITIONS(-DWindows)
+ELSE (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux")
+    ADD_DEFINITIONS(-DLinux)
+ENDIF ()
+
 # 查找代码中使用到的系统库
 find_library( # Sets the name of the path variable.
         log-lib

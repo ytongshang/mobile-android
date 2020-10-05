@@ -2,8 +2,6 @@ package cradle.rancune.once.view.jni
 
 import android.os.Bundle
 import android.view.View
-import cradle.rancune.internal.logger.AndroidLog
-import cradle.rancune.media.ffmpeg.FFmpeg2
 import cradle.rancune.once.R
 import cradle.rancune.once.view.base.BaseActivity
 import cradle.rancune.tech.jni.JniTest
@@ -16,23 +14,24 @@ class JniTestActivity : BaseActivity(), View.OnClickListener {
 
     companion object {
         const val TAG = "JniTestActivity"
-        val ffmpeg = FFmpeg2()
     }
+
+    private val jniTest = JniTest()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.once_activity_jni_test)
         getCoder.setOnClickListener(this)
         plus.setOnClickListener(this)
+        jniTest.test()
     }
 
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.getCoder -> {
-                AndroidLog.d(TAG, ffmpeg.coder)
+                //AndroidLog.d(TAG, ffmpeg.coder)
             }
             R.id.plus -> {
-                AndroidLog.d(TAG, "2 + 3 = ${JniTest.plus(2, 3)}")
             }
         }
     }

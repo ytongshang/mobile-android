@@ -51,7 +51,7 @@ ext {
     eventbusVersion = '3.1.1'
 
     mmkvStaticVersion = '1.1.2'
-    permissionVersion = '1.1.2'
+    permissionVersion = '2.0.3'
 
 
     dependencies = [

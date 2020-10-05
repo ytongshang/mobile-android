@@ -31,5 +31,6 @@ android {
 }
 
 dependencies {
+    implementation rootProject.ext.dependencies['annotation']
     implementation project(path: ':internal:core')
 }
