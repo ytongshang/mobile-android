@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.4.1)
 
 IF (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Windows")
-    ADD_DEFINITIONS(-DWindows)
-ELSE (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux")
-    ADD_DEFINITIONS(-DLinux)
+    add_definitions(-DWindows)
+ELSEIF (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux")
+    add_definitions(-DLinux)
 ENDIF ()
 
 # 查找代码中使用到的系统库

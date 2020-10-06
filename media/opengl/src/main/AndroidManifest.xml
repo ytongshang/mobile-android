@@ -1,2 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="cradle.rancune.media.opengl" />
+    package="cradle.rancune.media.opengl">
+
+    <application>
+        <activity android:name=".ui.OpenglActivity" />
+    </application>
+</manifest>

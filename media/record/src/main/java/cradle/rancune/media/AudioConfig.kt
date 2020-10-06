@@ -17,7 +17,7 @@ class AudioConfig {
 
     /**
      * 声道
-     * AudioFormat.CHANNEL_IN_MONO保证在所有的android上工作
+     * AudioFormat.CHANNEL_IN_MONO（单声道）保证在所有的android上工作
      */
     var channel = AudioFormat.CHANNEL_IN_MONO
 

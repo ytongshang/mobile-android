@@ -3,7 +3,7 @@ package cradle.rancune.once.view.player
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.MediaFormat
-import android.os.Bundle
+import cradle.rancune.core.appbase.BaseActivity
 import cradle.rancune.internal.logger.AndroidLog
 import cradle.rancune.media.EncodedData
 import cradle.rancune.media.OnDataListener
@@ -14,7 +14,6 @@ import cradle.rancune.media.decoder.MediaDecoder
 import cradle.rancune.media.mediasource.FileExtractor
 import cradle.rancune.once.Constant
 import cradle.rancune.once.R
-import cradle.rancune.once.view.base.BaseActivity
 import cradle.rancune.once.view.decode.MediaCodecVideoPlayActivity
 import java.io.File
 import kotlin.concurrent.thread
@@ -41,13 +40,15 @@ class AACPlayerActivity : BaseActivity() {
         config.streamStype = AudioManager.STREAM_MUSIC
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun initView() {
         setContentView(R.layout.once_activity_pcm_player)
+
+    }
+
+    override fun initData() {
         isPlaying = true
         start()
     }
-
 
     private fun start() {
         thread {

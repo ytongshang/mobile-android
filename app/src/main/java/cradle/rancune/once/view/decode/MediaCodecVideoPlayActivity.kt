@@ -5,11 +5,15 @@ import android.graphics.Point
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.MediaFormat
-import android.os.*
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
+import android.os.SystemClock
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.WindowManager
 import android.widget.RelativeLayout
+import cradle.rancune.core.appbase.BaseActivity
 import cradle.rancune.internal.logger.AndroidLog
 import cradle.rancune.media.EncodedData
 import cradle.rancune.media.OnDataListener
@@ -20,7 +24,6 @@ import cradle.rancune.media.decoder.MediaDecoder
 import cradle.rancune.media.mediasource.FileExtractor
 import cradle.rancune.once.Constant
 import cradle.rancune.once.R
-import cradle.rancune.once.view.base.BaseActivity
 import kotlinx.android.synthetic.main.once_activity_mediacode_video.*
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -52,9 +55,11 @@ class MediaCodecVideoPlayActivity : BaseActivity(), Handler.Callback {
 
     private val handler = Handler(Looper.getMainLooper(), this)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun initView() {
         setContentView(R.layout.once_activity_mediacode_video)
+    }
+
+    override fun initData() {
         surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceCreated(holder: SurfaceHolder?) {
                 isSurfaceCreated = true
@@ -84,7 +89,7 @@ class MediaCodecVideoPlayActivity : BaseActivity(), Handler.Callback {
     }
 
     private fun startPlay(sf: Surface) {
-        thread{
+        thread {
             val f = File(getExternalFilesDir(Constant.VIDEO_FILE), fileName)
             videoSource = FileExtractor(f.absolutePath)
             videoSource?.prepare()

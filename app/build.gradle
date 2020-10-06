@@ -40,7 +40,9 @@ dependencies {
     implementation rootProject.ext.dependencies['permission']
 
     implementation project(path: ':internal:core')
+    implementation project(path: ':internal:appbase')
     implementation project(path: ':media:record')
+    implementation project(path: ':media:opengl')
     implementation project(path: ':tech:jni')
     //implementation project(path: ':media:ffmpeg')
 }

@@ -26,7 +26,7 @@ object OpenGL {
             GLES30.GL_VERTEX_SHADER
         )
         val fragment = compileShader(
-            vertexCode,
+            fragmentCode,
             GLES30.GL_FRAGMENT_SHADER
         )
         if (vertex == -1 || fragment == -1) {
@@ -131,7 +131,7 @@ object OpenGL {
         }
     }
 
-    fun floatBuffer(vertices: FloatArray): FloatBuffer {
+    fun createFloatBuffer(vertices: FloatArray): FloatBuffer {
         val bb = ByteBuffer.allocateDirect(vertices.size * 4)
         bb.order(ByteOrder.nativeOrder())
         val fb = bb.asFloatBuffer()

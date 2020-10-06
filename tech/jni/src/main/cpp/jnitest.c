@@ -12,9 +12,11 @@ extern "C" {
 jclass catClass;
 jmethodID catConstructor;
 
+
+
 void Java_cradle_rancune_tech_jni_JniTest_cacheFieldAndMethods(JNIEnv *env, jclass clazz) {
     catClass = (*env)->FindClass(env, "cradle/rancune/tech/jni/Cat");
-    catConstructor = (*env)->GetMethodID(env, catClass, "<init>", "(Ljava/lang/String;)V")
+    catConstructor = (*env)->GetMethodID(env, catClass, "<init>", "(Ljava/lang/String;)V");
 }
 
 JNIEXPORT jstring JNICALL

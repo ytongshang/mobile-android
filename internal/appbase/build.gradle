@@ -2,6 +2,8 @@ apply from: "./../../project.gradle"
 libConfig()
 
 dependencies {
-    implementation rootProject.ext.dependencies['annotation']
+    api rootProject.ext.dependencies['annotation']
+    api rootProject.ext.dependencies['appcompat']
+    api rootProject.ext.dependencies['constraintlayout']
 }
 

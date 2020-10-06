@@ -1,9 +1,9 @@
 package cradle.rancune.once.view.record
 
-import android.os.Bundle
 import android.view.View
 import com.yanzhenjie.permission.AndPermission
 import com.yanzhenjie.permission.runtime.Permission
+import cradle.rancune.core.appbase.BaseActivity
 import cradle.rancune.internal.utils.IOUtils
 import cradle.rancune.internal.utils.T
 import cradle.rancune.media.*
@@ -11,7 +11,6 @@ import cradle.rancune.media.audiorecorder.AudioRecordWorker
 import cradle.rancune.media.audiorecorder.utils.ADTSUtils
 import cradle.rancune.once.Constant
 import cradle.rancune.once.R
-import cradle.rancune.once.view.base.BaseActivity
 import kotlinx.android.synthetic.main.once_activity_record_audio.*
 import java.io.*
 
@@ -31,14 +30,16 @@ class AudioRecordActivity : BaseActivity(), View.OnClickListener {
     private var isRecording = false
     private var addADTS = true
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun initView() {
         setContentView(R.layout.once_activity_record_audio)
         btn_start.setOnClickListener(this)
         btn_stop.setOnClickListener(this)
         radioGroup.setOnCheckedChangeListener { _, id ->
             addADTS = id == R.id.adts
         }
+    }
+
+    override fun initData() {
         val config = AudioConfig()
         worker = AudioRecordWorker(config)
         worker?.setOnInfoListener(object : OnInfoListener {

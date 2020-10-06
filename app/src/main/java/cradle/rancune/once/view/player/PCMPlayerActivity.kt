@@ -2,11 +2,10 @@ package cradle.rancune.once.view.player
 
 import android.media.AudioFormat
 import android.media.AudioManager
-import android.os.Bundle
+import cradle.rancune.core.appbase.BaseActivity
 import cradle.rancune.internal.logger.AndroidLog
 import cradle.rancune.media.audioplayer.AudioTrackPlayer
 import cradle.rancune.once.R
-import cradle.rancune.once.view.base.BaseActivity
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
@@ -31,16 +30,17 @@ class PCMPlayerActivity : BaseActivity() {
         config.streamStype = AudioManager.STREAM_MUSIC
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun initView() {
         setContentView(R.layout.once_activity_pcm_player)
+    }
+
+    override fun initData() {
         player = AudioTrackPlayer(config)
         player?.prepare()
         player?.start()
         isPlaying = true
         start()
     }
-
 
     private fun start() {
         thread {

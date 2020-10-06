@@ -2,7 +2,6 @@ package cradle.rancune.once.view
 
 import android.app.Activity
 import android.content.Intent
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,8 +10,9 @@ import androidx.annotation.NonNull
 import androidx.annotation.StringRes
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import cradle.rancune.core.appbase.BaseActivity
+import cradle.rancune.media.opengl.ui.OpenglActivity
 import cradle.rancune.once.R
-import cradle.rancune.once.view.base.BaseActivity
 import cradle.rancune.once.view.decode.MediaCodecVideoPlayActivity
 import cradle.rancune.once.view.jni.JniTestActivity
 import cradle.rancune.once.view.player.AACPlayerActivity
@@ -30,13 +30,14 @@ class MainActivity : BaseActivity() {
     private var adapter: Adapter? = null
     private val pages: MutableList<Page> = ArrayList()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun initView() {
         setContentView(R.layout.once_activity_main)
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         adapter = Adapter()
         recyclerView.adapter = adapter
+    }
 
+    override fun initData() {
         val audioRecord = Page()
         audioRecord.title = R.string.once_activity_audio_record
         audioRecord.target = AudioRecordActivity::class.java
@@ -63,6 +64,11 @@ class MainActivity : BaseActivity() {
         jniTest.target = JniTestActivity::class.java
         pages.add(jniTest)
 
+        val opengl = Page()
+        opengl.title = R.string.once_activity_opengl
+        opengl.target = OpenglActivity::class.java
+        pages.add(opengl)
+
         adapter?.notifyDataSetChanged()
     }
 
@@ -85,7 +91,7 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    private class ViewHolder internal constructor(itemView: View) :
+    private class ViewHolder constructor(itemView: View) :
         RecyclerView.ViewHolder(itemView), View.OnClickListener {
         var page: Page? = null
         var textView: TextView = itemView.findViewById(R.id.tv_page_name)

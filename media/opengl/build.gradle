@@ -1,6 +1,11 @@
 apply from: "./../../project.gradle"
 libConfig()
 
+android {
+    resourcePrefix 'opengl_'
+}
+
 dependencies {
     implementation project(path: ':internal:core')
+    implementation project(path: ':internal:appbase')
 }

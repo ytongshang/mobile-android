@@ -1,8 +1,8 @@
-include ':internal:appbase'
-rootProject.name='Once'
+rootProject.name = 'Once'
 include ':app'
 
 include ':internal:core'
+include ':internal:appbase'
 
 include ':media:record'
 //include ':media:ffmpeg'
