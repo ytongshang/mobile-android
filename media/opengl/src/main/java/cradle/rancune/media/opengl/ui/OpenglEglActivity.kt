@@ -6,6 +6,7 @@ import android.view.SurfaceHolder
 import cradle.rancune.core.appbase.BaseActivity
 import cradle.rancune.internal.logger.L
 import cradle.rancune.media.opengl.R
+import cradle.rancune.media.opengl.SimpleGlDrawer
 import cradle.rancune.media.opengl.core.EglHelper
 import cradle.rancune.media.opengl.render.Sample2D
 import kotlinx.android.synthetic.main.opengl_activity_egl.*
@@ -22,7 +23,7 @@ class OpenglEglActivity : BaseActivity(), SurfaceHolder.Callback {
     private val eglHelper: EglHelper = EglHelper()
 
     // 创建一个Sample2D
-    private val drawer: Sample2D = Sample2D()
+    private val drawer: SimpleGlDrawer = Sample2D()
 
     override fun initView() {
         setContentView(R.layout.opengl_activity_egl)
