@@ -1,12 +1,10 @@
 package cradle.rancune.media.opengl.render
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.opengl.GLES20
 import android.opengl.GLES30
 import android.opengl.GLUtils
 import android.opengl.Matrix
-import cradle.rancune.internal.utils.AppUtils
-import cradle.rancune.media.opengl.R
 import cradle.rancune.media.opengl.SimpleGlRender
 import cradle.rancune.media.opengl.core.MatrixUtils
 import cradle.rancune.media.opengl.core.OpenGL
@@ -16,8 +14,7 @@ import javax.microedition.khronos.opengles.GL10
 /**
  * Created by Rancune@126.com 2020/10/7.
  */
-class Sample2D : SimpleGlRender() {
-
+class Saturation : SimpleGlRender() {
     companion object {
         private val vertShader = """
         #version 300 es
@@ -43,10 +40,16 @@ class Sample2D : SimpleGlRender() {
         precision mediump float;
         in vec2 vTextureCoord;
         uniform sampler2D uTexture;
+        uniform float uSaturation;
         out vec4 fragColor;
+         
+        const mediump vec3 luminanceWeighting = vec3(0.2125, 0.7154, 0.0721);
 
         void main () {
-            fragColor = texture(uTexture,vTextureCoord);
+            vec4 textureColor = texture(uTexture, vTextureCoord);
+            float luminance = dot(textureColor.rgb, luminanceWeighting);
+            vec3 greyScaleColor = vec3(luminance);
+            fragColor = vec4(mix(greyScaleColor, textureColor.rgb, uSaturation), textureColor.w);
         }
     """.trimIndent()
     }
@@ -92,13 +95,15 @@ class Sample2D : SimpleGlRender() {
         1.0f, 1.0f,   // 2
         1.0f, 0.0f    // 3
     )
-
     private val vertexBuffer = OpenGL.createFloatBuffer(worldVertices)
     private val textureCoordBuffer = OpenGL.createFloatBuffer(androidTextureCoords)
+
     private var glProgram: Int = -1
     private var uMvpMatrixLocation: Int = -1
     private var uTextureCoordMatrixLocation: Int = -1
     private var textureLocation: Int = -1
+    private var uSaturationLocation: Int = -1
+
     private val mvpMatrix = FloatArray(16)
     private val textureCoordMatrix = FloatArray(16)
 
@@ -107,18 +112,12 @@ class Sample2D : SimpleGlRender() {
         Matrix.setIdentityM(textureCoordMatrix, 0)
     }
 
-    private val bitmap: Bitmap
+    private var bitmap: Bitmap? = null
     private var textureId: Int = 0
+    private var saturation: Float = 0.0f
 
-    init {
-        val options = BitmapFactory.Options()
-        options.inScaled = false
-        bitmap = BitmapFactory.decodeResource(
-            AppUtils.application.resources,
-            R.drawable.opengl_lenna,
-            options
-        )
-    }
+    private var viewWidth = 0
+    private var viewHeight = 0
 
     override fun createShader() {
         super.createShader()
@@ -126,6 +125,7 @@ class Sample2D : SimpleGlRender() {
         uMvpMatrixLocation = GLES30.glGetUniformLocation(glProgram, "uMvpMatrix")
         uTextureCoordMatrixLocation = GLES30.glGetUniformLocation(glProgram, "uTextureCoordMatrix")
         textureLocation = GLES30.glGetUniformLocation(glProgram, "uTexture")
+        uSaturationLocation = GLES30.glGetUniformLocation(glProgram, "uSaturation")
         textureId = OpenGL.createTexture()
     }
 
@@ -138,17 +138,24 @@ class Sample2D : SimpleGlRender() {
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         super.onSurfaceChanged(gl, width, height)
+        this.viewWidth = width
+        this.viewHeight = height
         GLES30.glViewport(0, 0, width, height)
-        MatrixUtils.getMatrix(
-            mvpMatrix, MatrixUtils.ScaleTye.CENTER_INSIDE,
-            bitmap.width, bitmap.height, width, height
-        )
+        bitmap?.let {
+            MatrixUtils.getMatrix(
+                mvpMatrix, MatrixUtils.ScaleTye.CENTER_INSIDE,
+                it.width, it.height, width, height
+            )
+        }
+
     }
 
     override fun onDrawFrame(gl: GL10?) {
         super.onDrawFrame(gl)
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
         GLES30.glUseProgram(glProgram)
+        // 设置饱和度
+        GLES20.glUniform1f(uSaturationLocation, saturation)
         // mvp矩阵
         GLES30.glUniformMatrix4fv(uMvpMatrixLocation, 1, false, mvpMatrix, 0)
         // 纹理矩阵
@@ -188,5 +195,19 @@ class Sample2D : SimpleGlRender() {
         GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, worldVertices.size / 2)
         GLES30.glDisableVertexAttribArray(0)
         GLES30.glDisableVertexAttribArray(1)
+    }
+
+    fun setSaturation(saturation: Float) {
+        this.saturation = saturation
+    }
+
+    fun setBitmap(bitmap: Bitmap) {
+        this.bitmap = bitmap
+        bitmap.let {
+            MatrixUtils.getMatrix(
+                mvpMatrix, MatrixUtils.ScaleTye.CENTER_INSIDE,
+                it.width, it.height, viewWidth, viewHeight
+            )
+        }
     }
 }

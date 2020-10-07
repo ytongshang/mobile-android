@@ -1,6 +1,5 @@
 package cradle.rancune.media.opengl.render
 
-import android.opengl.GLES20
 import android.opengl.GLES30
 import cradle.rancune.media.opengl.SimpleGlRender
 import cradle.rancune.media.opengl.core.OpenGL
@@ -80,14 +79,14 @@ class DrawElements : SimpleGlRender() {
 
     override fun onDrawFrame(gl: GL10?) {
         super.onDrawFrame(gl)
-        GLES30.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
         GLES30.glUseProgram(glProgram)
         GLES30.glEnableVertexAttribArray(0)
         GLES30.glVertexAttribPointer(0, 2, GLES30.GL_FLOAT, false, 2 * 4, vertexBuffer)
         GLES30.glDrawElements(
-            GLES20.GL_TRIANGLE_STRIP,
+            GLES30.GL_TRIANGLE_STRIP,
             indices.size,
-            GLES20.GL_UNSIGNED_BYTE,
+            GLES30.GL_UNSIGNED_BYTE,
             indiceBuffer
         )
         GLES30.glDisableVertexAttribArray(0)

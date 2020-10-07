@@ -1,6 +1,5 @@
 package cradle.rancune.media.opengl.render
 
-import android.opengl.GLES20
 import android.opengl.GLES30
 import cradle.rancune.media.opengl.SimpleGlRender
 import cradle.rancune.media.opengl.core.OpenGL
@@ -76,7 +75,7 @@ class ColorTriangle : SimpleGlRender() {
 
     override fun onDrawFrame(gl: GL10?) {
         super.onDrawFrame(gl)
-        GLES30.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
         // 使用OpenGL程序
         GLES30.glUseProgram(glProgram)
         // 启用顶点属性数组，这里的0就是顶点着色器的layout限定符指定的值
@@ -98,7 +97,7 @@ class ColorTriangle : SimpleGlRender() {
         // GL_POINTS, GL_LINES, GL_LINE_STRIP, GL_LINE_LOOP, GL_TRIANGLES,GL_TRIANGLES_STRIP,GL_TRIANGLES_FAN
         // first, 指定启用的顶点数组中起始顶点的索引
         // count,指定要绘制的顶点数量, 每个顶点2位，所以这里是vertices.size / 2
-        GLES30.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertices.size / 2)
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, vertices.size / 2)
 
         // 禁用顶点数组
         GLES30.glDisableVertexAttribArray(0)

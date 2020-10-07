@@ -53,10 +53,10 @@ class OpenglMainactivity : BaseActivity() {
             pages.add(page)
         }
 
-//        val page = Page()
-//        page.title = R.string.opengl_activity_opengl8
-//        page.intent = Intent(mContext, OpenGLCameraActivity::class.java)
-//        pages.add(page)
+        val page = Page()
+        page.title = R.string.opengl_activity_opengl7
+        page.intent = Intent(this, OpenglSaturationActivity::class.java)
+        pages.add(page)
 //
 //        val saturation = Page()
 //        saturation.title = R.string.opengl_activity_opengl9

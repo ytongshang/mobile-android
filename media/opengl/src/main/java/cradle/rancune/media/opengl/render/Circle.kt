@@ -1,6 +1,5 @@
 package cradle.rancune.media.opengl.render
 
-import android.opengl.GLES20
 import android.opengl.GLES30
 import android.opengl.Matrix
 import cradle.rancune.media.opengl.SimpleGlRender
@@ -88,13 +87,13 @@ class Circle : SimpleGlRender() {
 
     override fun onDrawFrame(gl: GL10?) {
         super.onDrawFrame(gl)
-        GLES30.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
         GLES30.glUseProgram(glProgram)
         GLES30.glUniformMatrix4fv(uMatrixLocation, 1, false, matrix, 0)
         GLES30.glUniform4fv(uColorLocation, 1, color, 0)
         GLES30.glEnableVertexAttribArray(0)
         GLES30.glVertexAttribPointer(0, 2, GLES30.GL_FLOAT, false, 2 * 4, vertexBuffer)
-        GLES30.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, vertices.size / 2)
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertices.size / 2)
         GLES30.glDisableVertexAttribArray(0)
     }
 
