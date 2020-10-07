@@ -146,10 +146,6 @@ public class EglHelper {
         checkEglError("eglMakeCurrent");
     }
 
-    public void pause() {
-
-    }
-
     public void destroy() {
         EGL14.eglMakeCurrent(mDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
         EGL14.eglDestroySurface(mDisplay, mSurface);

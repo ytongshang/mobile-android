@@ -19,6 +19,7 @@ object L : ILog {
     }
 
     override fun d(tag: String?, msg: String?) {
+        log.d(tag, msg)
     }
 
     override fun v(tag: String?, msg: String?) {

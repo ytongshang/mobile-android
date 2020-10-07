@@ -48,20 +48,25 @@ class OpenglSaturationActivity : BaseActivity() {
         })
     }
 
+    override fun initToolbar() {
+        super.initToolbar()
+        supportActionBar?.setTitle(R.string.opengl_activity_opengl7)
+    }
+
     override fun initData() {
         glSurfaceView.setEGLContextClientVersion(3)
         val render = object : GLSurfaceView.Renderer {
             override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
                 saturationRender.createShader()
-                saturationRender.onSurfaceCreated(gl, config)
+                saturationRender.onSurfaceCreated()
             }
 
             override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-                saturationRender.onSurfaceChanged(gl, width, height)
+                saturationRender.onSurfaceChanged(width, height)
             }
 
             override fun onDrawFrame(gl: GL10?) {
-                saturationRender.onDrawFrame(gl)
+                saturationRender.onDrawFrame()
             }
         }
         glSurfaceView.setRenderer(render)

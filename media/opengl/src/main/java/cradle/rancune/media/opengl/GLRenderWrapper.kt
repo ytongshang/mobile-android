@@ -7,8 +7,8 @@ import javax.microedition.khronos.opengles.GL10
 /**
  * Created by Rancune@126.com 2020/10/7.
  */
-class RenderWrapper(private val clazz: Class<out SimpleGlRender>) : GLSurfaceView.Renderer {
-    private var render: SimpleGlRender? = null
+class GLRenderWrapper(private val clazz: Class<out SimpleGlDrawer>) : GLSurfaceView.Renderer {
+    private var render: SimpleGlDrawer? = null
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig) {
         render = try {
@@ -18,14 +18,14 @@ class RenderWrapper(private val clazz: Class<out SimpleGlRender>) : GLSurfaceVie
         }
         // 在GL_THREAD创建shader
         render?.createShader()
-        render?.onSurfaceCreated(gl, config)
+        render?.onSurfaceCreated()
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-        render?.onSurfaceChanged(gl, width, height)
+        render?.onSurfaceChanged(width, height)
     }
 
     override fun onDrawFrame(gl: GL10?) {
-        render?.onDrawFrame(gl)
+        render?.onDrawFrame()
     }
 }

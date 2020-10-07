@@ -7,16 +7,14 @@ import android.opengl.GLUtils
 import android.opengl.Matrix
 import cradle.rancune.internal.utils.AppUtils
 import cradle.rancune.media.opengl.R
-import cradle.rancune.media.opengl.SimpleGlRender
+import cradle.rancune.media.opengl.SimpleGlDrawer
 import cradle.rancune.media.opengl.core.MatrixUtils
 import cradle.rancune.media.opengl.core.OpenGL
-import javax.microedition.khronos.egl.EGLConfig
-import javax.microedition.khronos.opengles.GL10
 
 /**
  * Created by Rancune@126.com 2020/10/7.
  */
-class Sample2D : SimpleGlRender() {
+class Sample2D : SimpleGlDrawer {
 
     companion object {
         private val vertShader = """
@@ -121,7 +119,6 @@ class Sample2D : SimpleGlRender() {
     }
 
     override fun createShader() {
-        super.createShader()
         glProgram = OpenGL.createProgram(vertShader, fragShader)
         uMvpMatrixLocation = GLES30.glGetUniformLocation(glProgram, "uMvpMatrix")
         uTextureCoordMatrixLocation = GLES30.glGetUniformLocation(glProgram, "uTextureCoordMatrix")
@@ -129,15 +126,13 @@ class Sample2D : SimpleGlRender() {
         textureId = OpenGL.createTexture()
     }
 
-    override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        super.onSurfaceCreated(gl, config)
+    override fun onSurfaceCreated() {
         GLES30.glClearColor(1.0f, 1.0f, 1.0f, 1f)
         // 开启2D纹理
         GLES30.glEnable(GLES30.GL_TEXTURE_2D)
     }
 
-    override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-        super.onSurfaceChanged(gl, width, height)
+    override fun onSurfaceChanged(width: Int, height: Int) {
         GLES30.glViewport(0, 0, width, height)
         MatrixUtils.getMatrix(
             mvpMatrix, MatrixUtils.ScaleTye.CENTER_INSIDE,
@@ -145,8 +140,7 @@ class Sample2D : SimpleGlRender() {
         )
     }
 
-    override fun onDrawFrame(gl: GL10?) {
-        super.onDrawFrame(gl)
+    override fun onDrawFrame() {
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
         GLES30.glUseProgram(glProgram)
         // mvp矩阵
@@ -188,5 +182,16 @@ class Sample2D : SimpleGlRender() {
         GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, worldVertices.size / 2)
         GLES30.glDisableVertexAttribArray(0)
         GLES30.glDisableVertexAttribArray(1)
+    }
+
+    override fun destroy() {
+        if (textureId > 0) {
+            GLES30.glDeleteTextures(1, intArrayOf(textureId), 0)
+            textureId = 0
+        }
+        if (glProgram > 0) {
+            GLES30.glDeleteProgram(glProgram)
+            glProgram = 0
+        }
     }
 }

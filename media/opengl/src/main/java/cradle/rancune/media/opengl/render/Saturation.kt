@@ -5,16 +5,14 @@ import android.opengl.GLES20
 import android.opengl.GLES30
 import android.opengl.GLUtils
 import android.opengl.Matrix
-import cradle.rancune.media.opengl.SimpleGlRender
+import cradle.rancune.media.opengl.SimpleGlDrawer
 import cradle.rancune.media.opengl.core.MatrixUtils
 import cradle.rancune.media.opengl.core.OpenGL
-import javax.microedition.khronos.egl.EGLConfig
-import javax.microedition.khronos.opengles.GL10
 
 /**
  * Created by Rancune@126.com 2020/10/7.
  */
-class Saturation : SimpleGlRender() {
+class Saturation : SimpleGlDrawer {
     companion object {
         private val vertShader = """
         #version 300 es
@@ -120,7 +118,6 @@ class Saturation : SimpleGlRender() {
     private var viewHeight = 0
 
     override fun createShader() {
-        super.createShader()
         glProgram = OpenGL.createProgram(vertShader, fragShader)
         uMvpMatrixLocation = GLES30.glGetUniformLocation(glProgram, "uMvpMatrix")
         uTextureCoordMatrixLocation = GLES30.glGetUniformLocation(glProgram, "uTextureCoordMatrix")
@@ -129,15 +126,13 @@ class Saturation : SimpleGlRender() {
         textureId = OpenGL.createTexture()
     }
 
-    override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        super.onSurfaceCreated(gl, config)
+    override fun onSurfaceCreated() {
         GLES30.glClearColor(1.0f, 1.0f, 1.0f, 1f)
         // 开启2D纹理
         GLES30.glEnable(GLES30.GL_TEXTURE_2D)
     }
 
-    override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-        super.onSurfaceChanged(gl, width, height)
+    override fun onSurfaceChanged(width: Int, height: Int) {
         this.viewWidth = width
         this.viewHeight = height
         GLES30.glViewport(0, 0, width, height)
@@ -150,8 +145,7 @@ class Saturation : SimpleGlRender() {
 
     }
 
-    override fun onDrawFrame(gl: GL10?) {
-        super.onDrawFrame(gl)
+    override fun onDrawFrame() {
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
         GLES30.glUseProgram(glProgram)
         // 设置饱和度
@@ -208,6 +202,17 @@ class Saturation : SimpleGlRender() {
                 mvpMatrix, MatrixUtils.ScaleTye.CENTER_INSIDE,
                 it.width, it.height, viewWidth, viewHeight
             )
+        }
+    }
+
+    override fun destroy() {
+        if (textureId > 0) {
+            GLES30.glDeleteTextures(1, intArrayOf(textureId), 0)
+            textureId = 0
+        }
+        if (glProgram > 0) {
+            GLES30.glDeleteProgram(glProgram)
+            glProgram = 0
         }
     }
 }

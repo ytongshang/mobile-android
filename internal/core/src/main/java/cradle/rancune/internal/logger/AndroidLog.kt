@@ -11,8 +11,8 @@ object AndroidLog : ILog {
 
     override fun setLogLevel(level: Int) {
         var l = level
-        if (level <= ILog.INFO) {
-            l = ILog.INFO
+        if (level <= ILog.VERBOSE) {
+            l = ILog.VERBOSE
         }
         if (level >= ILog.ERROR) {
             l = ILog.ERROR

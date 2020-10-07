@@ -2,19 +2,17 @@ package cradle.rancune.media.opengl.render
 
 import android.opengl.GLES30
 import android.opengl.Matrix
-import cradle.rancune.media.opengl.SimpleGlRender
+import cradle.rancune.media.opengl.SimpleGlDrawer
 import cradle.rancune.media.opengl.core.OpenGL
 import java.nio.FloatBuffer
 import java.util.*
-import javax.microedition.khronos.egl.EGLConfig
-import javax.microedition.khronos.opengles.GL10
 import kotlin.math.cos
 import kotlin.math.sin
 
 /**
  * Created by Rancune@126.com 2020/10/6.
  */
-class Circle : SimpleGlRender() {
+class Circle : SimpleGlDrawer {
 
     companion object {
         private val vertShader = """
@@ -61,19 +59,16 @@ class Circle : SimpleGlRender() {
      * 这个方法的调用，必须在GL_THREAD,否则创建不了shader
      */
     override fun createShader() {
-        super.createShader()
         glProgram = OpenGL.createProgram(vertShader, fragShader)
         uMatrixLocation = GLES30.glGetUniformLocation(glProgram, "uMatrix")
         uColorLocation = GLES30.glGetUniformLocation(glProgram, "uColor")
     }
 
-    override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        super.onSurfaceCreated(gl, config)
+    override fun onSurfaceCreated() {
         GLES30.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
     }
 
-    override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-        super.onSurfaceChanged(gl, width, height)
+    override fun onSurfaceChanged(width: Int, height: Int) {
         // 指定大小
         GLES30.glViewport(0, 0, width, height)
         // 虽然每个顶点坐标都是0.5，但是屏幕的宽*0.5 与高*0.5 不一样，这样以较小的为1，较长为的其比例
@@ -85,8 +80,7 @@ class Circle : SimpleGlRender() {
         }
     }
 
-    override fun onDrawFrame(gl: GL10?) {
-        super.onDrawFrame(gl)
+    override fun onDrawFrame() {
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
         GLES30.glUseProgram(glProgram)
         GLES30.glUniformMatrix4fv(uMatrixLocation, 1, false, matrix, 0)
@@ -95,6 +89,13 @@ class Circle : SimpleGlRender() {
         GLES30.glVertexAttribPointer(0, 2, GLES30.GL_FLOAT, false, 2 * 4, vertexBuffer)
         GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertices.size / 2)
         GLES30.glDisableVertexAttribArray(0)
+    }
+
+    override fun destroy() {
+        if (glProgram > 0) {
+            GLES30.glDeleteProgram(glProgram)
+            glProgram = 0
+        }
     }
 
     private fun createPositions(radius: Float, n: Int): FloatArray {

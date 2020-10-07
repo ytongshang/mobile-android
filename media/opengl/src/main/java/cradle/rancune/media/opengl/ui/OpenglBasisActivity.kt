@@ -3,9 +3,9 @@ package cradle.rancune.media.opengl.ui
 import android.content.Context
 import android.content.Intent
 import cradle.rancune.core.appbase.BaseActivity
+import cradle.rancune.media.opengl.GLRenderWrapper
 import cradle.rancune.media.opengl.R
-import cradle.rancune.media.opengl.RenderWrapper
-import cradle.rancune.media.opengl.SimpleGlRender
+import cradle.rancune.media.opengl.SimpleGlDrawer
 import cradle.rancune.media.opengl.render.*
 import kotlinx.android.synthetic.main.opengl_activity_opengl.*
 
@@ -28,7 +28,7 @@ class OpenglBasisActivity : BaseActivity() {
             return intent
         }
 
-        private fun getRenderClass(type: Int): Class<out SimpleGlRender> {
+        private fun getRenderClass(type: Int): Class<out SimpleGlDrawer> {
             when (type) {
                 TYPE_COLORTRIANGLE -> {
                     return ColorTriangle::class.java
@@ -52,7 +52,7 @@ class OpenglBasisActivity : BaseActivity() {
         }
     }
 
-    private lateinit var render: RenderWrapper
+    private lateinit var render: GLRenderWrapper
     private var renderType: Int = -1
 
     override fun initView() {
@@ -71,17 +71,17 @@ class OpenglBasisActivity : BaseActivity() {
 
     override fun initData() {
         glSurfaceView.setEGLContextClientVersion(3)
-        render = RenderWrapper(getRenderClass(renderType))
+        render = GLRenderWrapper(getRenderClass(renderType))
         glSurfaceView.setRenderer(render)
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         glSurfaceView?.onResume()
     }
 
-    override fun onStop() {
+    override fun onPause() {
         glSurfaceView?.onPause()
-        super.onStop()
+        super.onPause()
     }
 }

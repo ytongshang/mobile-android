@@ -2,16 +2,14 @@ package cradle.rancune.media.opengl.render
 
 import android.opengl.GLES30
 import android.opengl.Matrix
-import cradle.rancune.media.opengl.SimpleGlRender
+import cradle.rancune.media.opengl.SimpleGlDrawer
 import cradle.rancune.media.opengl.core.OpenGL
 import java.nio.FloatBuffer
-import javax.microedition.khronos.egl.EGLConfig
-import javax.microedition.khronos.opengles.GL10
 
 /**
  * Created by Rancune@126.com 2020/10/7.
  */
-class Shape : SimpleGlRender() {
+class Shape : SimpleGlDrawer {
 
     companion object {
         private val vertShader = """
@@ -72,25 +70,21 @@ class Shape : SimpleGlRender() {
      * 这个方法的调用，必须在GL_THREAD,否则创建不了shader
      */
     override fun createShader() {
-        super.createShader()
         glProgram = OpenGL.createProgram(vertShader, fragShader)
         uMatrixLocation = GLES30.glGetUniformLocation(glProgram, "uMatrix")
         uColorLocation = GLES30.glGetUniformLocation(glProgram, "uColor")
     }
 
-    override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        super.onSurfaceCreated(gl, config)
+    override fun onSurfaceCreated() {
         GLES30.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
     }
 
-    override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-        super.onSurfaceChanged(gl, width, height)
+    override fun onSurfaceChanged(width: Int, height: Int) {
         // 指定大小
         GLES30.glViewport(0, 0, width, height)
     }
 
-    override fun onDrawFrame(gl: GL10?) {
-        super.onDrawFrame(gl)
+    override fun onDrawFrame() {
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
         GLES30.glUseProgram(glProgram)
 
@@ -153,5 +147,12 @@ class Shape : SimpleGlRender() {
         //GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertices.size / 2)
 
         GLES30.glDisableVertexAttribArray(0)
+    }
+
+    override fun destroy() {
+        if (glProgram > 0) {
+            GLES30.glDeleteProgram(glProgram)
+            glProgram = 0
+        }
     }
 }

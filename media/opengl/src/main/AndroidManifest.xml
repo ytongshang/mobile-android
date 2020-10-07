@@ -18,5 +18,10 @@
             android:configChanges="orientation|keyboardHidden|navigation|locale|screenSize|screenLayout"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".ui.OpenglEglActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|locale|screenSize|screenLayout"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
     </application>
 </manifest>

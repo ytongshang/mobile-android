@@ -57,21 +57,11 @@ class OpenglMainactivity : BaseActivity() {
         page.title = R.string.opengl_activity_opengl7
         page.intent = Intent(this, OpenglSaturationActivity::class.java)
         pages.add(page)
-//
-//        val saturation = Page()
-//        saturation.title = R.string.opengl_activity_opengl9
-//        saturation.intent = Intent(mContext, OpenGLSaturationActivity::class.java)
-//        pages.add(saturation)
-//
-//        val fbo = Page()
-//        fbo.title = R.string.opengl_activity_opengl10
-//        fbo.intent = Intent(mContext, OpenGLFboActivity::class.java)
-//        pages.add(fbo)
-//
-//        val egl = Page()
-//        egl.title = R.string.opengl_activity_opengl11
-//        egl.intent = Intent(mContext, OpenGLEglActivity::class.java)
-//        pages.add(egl)
+
+        val egl = Page()
+        egl.title = R.string.opengl_activity_opengl9
+        egl.intent = Intent(this, OpenglEglActivity::class.java)
+        pages.add(egl)
 
         adapter.notifyDataSetChanged()
     }
