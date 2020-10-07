@@ -13,20 +13,8 @@ import javax.microedition.khronos.opengles.GL10
  */
 class ColorTriangle : SimpleGlRender() {
 
-    private val vertices = floatArrayOf(
-        0.0f, 0.5f,    // top
-        -0.5f, 0.0f,   // left bottom
-        0.5f, 0.0f     // right bottom
-    )
-
-    // 黑色
-    private val colors: FloatArray = floatArrayOf(
-        0.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, 0.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f, 1.0f
-    )
-
-    private val vertShader = """
+    companion object {
+        private val vertShader = """
         #version 300 es
         layout(location = 0) in vec4 aPosition;
         layout(location = 1) in vec4 aColor;
@@ -38,7 +26,7 @@ class ColorTriangle : SimpleGlRender() {
         }
     """.trimIndent()
 
-    private val fragShader = """
+        private val fragShader = """
         #version 300 es
         precision mediump float;
         in vec4 vColor;
@@ -48,8 +36,21 @@ class ColorTriangle : SimpleGlRender() {
             fragColor = vColor;
         }
     """.trimIndent()
+    }
 
+    private val vertices = floatArrayOf(
+        0.0f, 0.5f,    // top
+        -0.5f, 0.0f,   // left bottom
+        0.5f, 0.0f     // right bottom
+    )
     private val vertexBuffer: FloatBuffer = OpenGL.createFloatBuffer(vertices)
+
+    // 黑色
+    private val colors: FloatArray = floatArrayOf(
+        0.0f, 1.0f, 0.0f, 1.0f,
+        1.0f, 0.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f, 1.0f
+    )
     private val colorBuffer: FloatBuffer = OpenGL.createFloatBuffer(colors)
     private var glProgram: Int = 0
 
@@ -96,7 +97,7 @@ class ColorTriangle : SimpleGlRender() {
         // mode,指定要渲染的图元，
         // GL_POINTS, GL_LINES, GL_LINE_STRIP, GL_LINE_LOOP, GL_TRIANGLES,GL_TRIANGLES_STRIP,GL_TRIANGLES_FAN
         // first, 指定启用的顶点数组中起始顶点的索引
-        // count,指定要绘制的顶点数量
+        // count,指定要绘制的顶点数量, 每个顶点2位，所以这里是vertices.size / 2
         GLES30.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertices.size / 2)
 
         // 禁用顶点数组

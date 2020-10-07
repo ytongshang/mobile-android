@@ -17,7 +17,8 @@ import kotlin.math.sin
  */
 class Circle : SimpleGlRender() {
 
-    private val vertShader = """
+    companion object {
+        private val vertShader = """
         #version 300 es
         layout(location = 0) in vec4 aPosition;
         uniform mat4 uMatrix;
@@ -27,7 +28,7 @@ class Circle : SimpleGlRender() {
         }
     """.trimIndent()
 
-    private val fragShader = """
+        private val fragShader = """
         #version 300 es
         precision mediump float;
         uniform vec4 uColor;
@@ -37,6 +38,7 @@ class Circle : SimpleGlRender() {
             fragColor = uColor;
         }
     """.trimIndent()
+    }
 
     private val matrix = FloatArray(16)
 
@@ -98,7 +100,8 @@ class Circle : SimpleGlRender() {
 
     private fun createPositions(radius: Float, n: Int): FloatArray {
         val list: MutableList<Float> = ArrayList()
-        // 第一个顶点
+        // 一系列顶点中的第一个点为中心点，其他顶点为边缘点，绘制一系列组成扇形的相邻三角形
+        // 中心点在(0, 0)其它的顺序组成扇形，最终组成圆形
         list.add(0.0f)
         list.add(0.0f)
         val ang = (360 / n).toFloat()

@@ -6,9 +6,7 @@ import cradle.rancune.core.appbase.BaseActivity
 import cradle.rancune.media.opengl.R
 import cradle.rancune.media.opengl.RenderWrapper
 import cradle.rancune.media.opengl.SimpleGlRender
-import cradle.rancune.media.opengl.render.Circle
-import cradle.rancune.media.opengl.render.ColorTriangle
-import cradle.rancune.media.opengl.render.Shape
+import cradle.rancune.media.opengl.render.*
 import kotlinx.android.synthetic.main.opengl_activity_opengl.*
 
 /**
@@ -42,10 +40,10 @@ class OpenglBasisActivity : BaseActivity() {
                     return Circle::class.java
                 }
                 TYPE_DRAWELEMENTS -> {
-                    return ColorTriangle::class.java
+                    return DrawElements::class.java
                 }
                 TYPE_SAMPLE2D -> {
-                    return ColorTriangle::class.java
+                    return Sample2D::class.java
                 }
                 else -> {
                     return ColorTriangle::class.java
