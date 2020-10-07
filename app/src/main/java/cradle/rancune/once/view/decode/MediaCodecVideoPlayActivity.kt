@@ -14,7 +14,10 @@ import android.view.SurfaceHolder
 import android.view.WindowManager
 import android.widget.RelativeLayout
 import cradle.rancune.core.appbase.BaseActivity
+import cradle.rancune.internal.extension.findString
 import cradle.rancune.internal.logger.AndroidLog
+import cradle.rancune.internal.utils.AppUtils
+import cradle.rancune.internal.utils.T
 import cradle.rancune.media.EncodedData
 import cradle.rancune.media.OnDataListener
 import cradle.rancune.media.OnErrorListener
@@ -41,7 +44,8 @@ class MediaCodecVideoPlayActivity : BaseActivity(), Handler.Callback {
     }
 
     private var isSurfaceCreated: Boolean = false
-    private val fileName = "westworld.mp4"
+    private val file =
+        File(AppUtils.application.getExternalFilesDir(Constant.VIDEO_FILE), "westworld.mp4")
 
     private var audioSource: FileExtractor? = null
     private var audioDecoder: MediaDecoder? = null
@@ -60,6 +64,10 @@ class MediaCodecVideoPlayActivity : BaseActivity(), Handler.Callback {
     }
 
     override fun initData() {
+        if (!file.exists() || file.isDirectory) {
+            T.showShort(findString(R.string.once_file_not_exists, file.absolutePath))
+            return
+        }
         surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceCreated(holder: SurfaceHolder?) {
                 isSurfaceCreated = true
@@ -90,8 +98,7 @@ class MediaCodecVideoPlayActivity : BaseActivity(), Handler.Callback {
 
     private fun startPlay(sf: Surface) {
         thread {
-            val f = File(getExternalFilesDir(Constant.VIDEO_FILE), fileName)
-            videoSource = FileExtractor(f.absolutePath)
+            videoSource = FileExtractor(file.absolutePath)
             videoSource?.prepare()
             videoSource?.findTrack("video")
             val format = videoSource?.mediaFormat ?: return@thread
@@ -134,8 +141,7 @@ class MediaCodecVideoPlayActivity : BaseActivity(), Handler.Callback {
             videoDecoder = null
         }
         thread(start = true) {
-            val f = File(getExternalFilesDir(Constant.VIDEO_FILE), fileName)
-            audioSource = FileExtractor(f.absolutePath)
+            audioSource = FileExtractor(file.absolutePath)
             audioSource?.prepare()
             audioSource?.findTrack("audio")
             val format = audioSource?.mediaFormat ?: return@thread

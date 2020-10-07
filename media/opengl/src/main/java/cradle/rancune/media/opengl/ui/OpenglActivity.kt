@@ -41,6 +41,7 @@ class OpenglActivity : BaseActivity(), GLSurfaceView.Renderer {
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+        // 必须在GL_THREAD创建shader
         render.createShader()
         render.onSurfaceCreated(gl, config)
     }

@@ -3,5 +3,6 @@ libConfig()
 
 dependencies {
     implementation rootProject.ext.dependencies['annotation']
+    implementation rootProject.ext.dependencies['core-ktx']
 }
 

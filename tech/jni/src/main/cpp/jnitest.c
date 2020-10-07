@@ -283,12 +283,12 @@ jobject Java_cradle_rancune_tech_jni_JniTest_allocAnimalConstructor(JNIEnv *env,
 }
 
 void Java_cradle_rancune_tech_jni_JniTest_callSuperMethod(JNIEnv *env, jobject thiz, jstring name) {
-    jclass catClass = (*env)->FindClass(env, "cradle/rancune/tech/jni/Cat");
-    if (catClass == NULL) {
+    jclass catClazz = (*env)->FindClass(env, "cradle/rancune/tech/jni/Cat");
+    if (catClazz == NULL) {
         return;
     }
-    jmethodID catMid = (*env)->GetMethodID(env, catClass, "<init>", "(Ljava/lang/String;)V");
-    jobject cat = (*env)->NewObject(env, catClass, catMid, name);
+    jmethodID catMid = (*env)->GetMethodID(env, catClazz, "<init>", "(Ljava/lang/String;)V");
+    jobject cat = (*env)->NewObject(env, catClazz, catMid, name);
     if (cat == NULL) {
         return;
     }

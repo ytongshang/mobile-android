@@ -77,9 +77,14 @@ class AACPlayerActivity : BaseActivity() {
                                     AudioFormat.CHANNEL_OUT_MONO
                                 }
                             // encoding bits
-                            val encoding = outputFormat.getInteger(MediaFormat.KEY_PCM_ENCODING)
-                            val encodingFormat =
-                                if (encoding == 2) AudioFormat.ENCODING_PCM_16BIT else AudioFormat.ENCODING_PCM_8BIT
+                            val encodingFormat: Int =
+                                if (outputFormat.containsKey(MediaFormat.KEY_PCM_ENCODING)) {
+                                    val encoding =
+                                        outputFormat.getInteger(MediaFormat.KEY_PCM_ENCODING)
+                                    if (encoding == 2) AudioFormat.ENCODING_PCM_16BIT else AudioFormat.ENCODING_PCM_8BIT
+                                } else {
+                                    AudioFormat.ENCODING_PCM_16BIT
+                                }
                             config.audioEncodingFormat = encodingFormat
                             audioPlayer = AudioTrackPlayer(config)
                             audioPlayer?.prepare()

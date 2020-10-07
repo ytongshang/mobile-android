@@ -88,9 +88,8 @@ public class JniTest {
         Animal b = allocAnimalConstructor("allocAnimalConstructor test");
         AndroidLog.INSTANCE.d(TAG, b.getName());
 
-        callSuperMethod("callSuperMethod");
-
-        Animal c = useCacheMethod("useCacheMethod");
-        AndroidLog.INSTANCE.d(TAG, c.getName());
+//        callSuperMethod("callSuperMethod");
+//        Animal c = useCacheMethod("useCacheMethod");
+//        AndroidLog.INSTANCE.d(TAG, c.getName());
     }
 }

@@ -37,6 +37,9 @@ class MainActivity : BaseActivity() {
         recyclerView.adapter = adapter
     }
 
+    override fun initToolbar() {
+    }
+
     override fun initData() {
         val audioRecord = Page()
         audioRecord.title = R.string.once_activity_audio_record

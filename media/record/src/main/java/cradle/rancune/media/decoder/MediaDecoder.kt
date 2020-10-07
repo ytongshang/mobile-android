@@ -4,7 +4,6 @@ import android.media.MediaCodec
 import android.media.MediaFormat
 import android.os.Build
 import android.view.Surface
-import cradle.rancune.internal.logger.AndroidLog
 import cradle.rancune.media.*
 
 
@@ -18,19 +17,24 @@ class MediaDecoder(
 ) {
 
     companion object {
+        private const val TAG = "MediaDecoder"
         const val TIMEOUTUS = 1000L
 
         const val ERROR_INVALID_MEDIAFORMAT = 1
         const val ERROR_CREATE_MEDIACODEC = 2
         const val ERROR_START_DECODER = 3
-        const val ERROR_STOP_DECODER = 4
+        const val ERROR_DRAIN_BUFFER = 4
+        const val ERROR_RELEASE_BUFFER = 5
+        const val ERROR_STOP_DECODER = 5
 
         const val INFO_OUTPUT_MEDIAFORMAT_CHANGED = 1
     }
 
     private var decoder: MediaCodec? = null
+
     @Volatile
     private var isStopped: Boolean = true
+
     @Volatile
     private var isReleased: Boolean = true
     private var isEndOfStream: Boolean = false
@@ -121,10 +125,15 @@ class MediaDecoder(
         if (isStopped || isReleased) {
             return
         }
-        AndroidLog.d("Rancune", "drain:" + Thread.currentThread().name)
         val coder = decoder ?: return
         val bufferInfo = MediaCodec.BufferInfo()
-        val index = coder.dequeueOutputBuffer(bufferInfo, TIMEOUTUS)
+        val index = try {
+            coder.dequeueOutputBuffer(bufferInfo, TIMEOUTUS)
+        } catch (e: Exception) {
+            onError(ERROR_DRAIN_BUFFER, "", e)
+            release()
+            return
+        }
         when {
             index == MediaCodec.INFO_TRY_AGAIN_LATER -> {
             }
@@ -163,7 +172,13 @@ class MediaDecoder(
                         buffer.get(data.byteArray!!, data.offset, data.size)
                         data.bufferInfo = bufferInfo
                         it.onOutputAvailable(data)
-                        coder.releaseOutputBuffer(index, false)
+                        try {
+                            coder.releaseOutputBuffer(index, false)
+                        } catch (e: Exception) {
+                            onError(ERROR_RELEASE_BUFFER, "", e)
+                            release()
+                            return
+                        }
                     }
                 }
             }

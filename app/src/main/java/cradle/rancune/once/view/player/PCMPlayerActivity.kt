@@ -3,7 +3,11 @@ package cradle.rancune.once.view.player
 import android.media.AudioFormat
 import android.media.AudioManager
 import cradle.rancune.core.appbase.BaseActivity
+import cradle.rancune.internal.extension.findString
 import cradle.rancune.internal.logger.AndroidLog
+import cradle.rancune.internal.utils.AppUtils
+import cradle.rancune.internal.utils.IOUtils
+import cradle.rancune.internal.utils.T
 import cradle.rancune.media.audioplayer.AudioTrackPlayer
 import cradle.rancune.once.R
 import java.io.File
@@ -22,6 +26,7 @@ class PCMPlayerActivity : BaseActivity() {
     private var isPlaying = true
 
     private val config = AudioTrackPlayer.Config()
+    private val file = File(AppUtils.application.getExternalFilesDir("audio"), "test.pcm")
 
     init {
         config.sampleRate = 44100
@@ -35,6 +40,10 @@ class PCMPlayerActivity : BaseActivity() {
     }
 
     override fun initData() {
+        if (!file.exists() || file.isDirectory) {
+            T.showShort(findString(R.string.once_file_not_exists, file.absolutePath))
+            return
+        }
         player = AudioTrackPlayer(config)
         player?.prepare()
         player?.start()
@@ -46,8 +55,6 @@ class PCMPlayerActivity : BaseActivity() {
         thread {
             var input: InputStream? = null
             try {
-                val dir = this.getExternalFilesDir("audio")
-                val file = File(dir, "test.pcm")
                 input = FileInputStream(file)
                 val length = config.minBufferSize
                 val array = ByteArray(length)
@@ -59,6 +66,8 @@ class PCMPlayerActivity : BaseActivity() {
                 }
             } catch (e: Exception) {
                 AndroidLog.e("PCMPlayerActivity", "", e)
+            } finally {
+                IOUtils.closeQuietly(input)
             }
         }
     }
