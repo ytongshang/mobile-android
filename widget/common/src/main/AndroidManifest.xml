@@ -1,5 +1,2 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="cradle.rancune.core.appbase">
-
-    /
-</manifest>
+    package="cradle.rancune.widget.common"/>

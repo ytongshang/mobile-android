@@ -1,8 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="cradle.rancune.media.opengl">
 
     <application>
-        <activity android:name=".ui.OpenglBasisActivity" />
-        <activity android:name=".ui.OpenglMainactivity" />
+        <activity
+            android:name=".ui.OpenglMainactivity"
+            android:configChanges="orientation|keyboardHidden|navigation|locale|screenSize|screenLayout"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".ui.OpenglBasisActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|locale|screenSize|screenLayout"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
     </application>
 </manifest>

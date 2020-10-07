@@ -15,7 +15,7 @@ import java.nio.ShortBuffer
  */
 object OpenGL {
 
-    private const val TAG = "GLProgram"
+    private const val TAG = "OpenGL"
 
     fun createProgram(vertexCode: String?, fragmentCode: String?): Int {
         if (vertexCode.isNullOrEmpty() || fragmentCode.isNullOrEmpty()) {

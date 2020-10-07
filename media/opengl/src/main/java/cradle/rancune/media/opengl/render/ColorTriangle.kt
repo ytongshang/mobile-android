@@ -1,4 +1,4 @@
-package cradle.rancune.media.opengl.render.shape
+package cradle.rancune.media.opengl.render
 
 import android.opengl.GLES20
 import android.opengl.GLES30
