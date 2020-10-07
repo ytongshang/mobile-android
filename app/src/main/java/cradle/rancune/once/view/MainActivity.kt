@@ -2,22 +2,19 @@ package cradle.rancune.once.view
 
 import android.app.Activity
 import android.content.Intent
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
-import androidx.annotation.NonNull
 import androidx.annotation.StringRes
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import cradle.rancune.core.appbase.BaseActivity
-import cradle.rancune.media.opengl.ui.OpenglActivity
+import cradle.rancune.media.opengl.ui.OpenglMainactivity
 import cradle.rancune.once.R
 import cradle.rancune.once.view.decode.MediaCodecVideoPlayActivity
 import cradle.rancune.once.view.jni.JniTestActivity
 import cradle.rancune.once.view.player.AACPlayerActivity
 import cradle.rancune.once.view.player.PCMPlayerActivity
 import cradle.rancune.once.view.record.AudioRecordActivity
+import cradle.rancune.widget.recyclerview.CommonRecyclerViewAdapter
+import cradle.rancune.widget.recyclerview.OnItemClickListener
 import kotlinx.android.synthetic.main.once_activity_main.*
 import java.util.*
 
@@ -26,14 +23,27 @@ import java.util.*
  */
 class MainActivity : BaseActivity() {
 
-
-    private var adapter: Adapter? = null
+    private lateinit var adapter: CommonRecyclerViewAdapter<Page>
     private val pages: MutableList<Page> = ArrayList()
 
     override fun initView() {
         setContentView(R.layout.once_activity_main)
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        adapter = Adapter()
+        adapter = object : CommonRecyclerViewAdapter<Page>(
+            pages,
+            cradle.rancune.media.opengl.R.layout.opengl_reycle_item_main_page,
+            object : OnItemClickListener {
+                override fun onItemClick(v: View, position: Int) {
+                    pages.getOrNull(position)?.target.apply {
+                        val i = Intent(v.context, this)
+                        startActivity(i)
+                    }
+                }
+            }) {
+            override fun bind(holder: ViewHolder, item: Page) {
+                holder.setText(cradle.rancune.media.opengl.R.id.tvPageName, item.title)
+            }
+        }
         recyclerView.adapter = adapter
     }
 
@@ -69,51 +79,10 @@ class MainActivity : BaseActivity() {
 
         val opengl = Page()
         opengl.title = R.string.once_activity_opengl
-        opengl.target = OpenglActivity::class.java
+        opengl.target = OpenglMainactivity::class.java
         pages.add(opengl)
 
-        adapter?.notifyDataSetChanged()
-    }
-
-    private inner class Adapter : RecyclerView.Adapter<ViewHolder>() {
-
-        override fun onBindViewHolder(@NonNull holder: ViewHolder, position: Int) {
-            val page: Page = pages[position]
-            holder.bindView(page)
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val v =
-                LayoutInflater.from(parent.context)
-                    .inflate(R.layout.once_item_main_page, parent, false)
-            return ViewHolder(v)
-        }
-
-        override fun getItemCount(): Int {
-            return pages.size
-        }
-    }
-
-    private class ViewHolder constructor(itemView: View) :
-        RecyclerView.ViewHolder(itemView), View.OnClickListener {
-        var page: Page? = null
-        var textView: TextView = itemView.findViewById(R.id.tv_page_name)
-
-        init {
-            itemView.setOnClickListener(this)
-        }
-
-        fun bindView(page: Page) {
-            textView.setText(page.title)
-            this.page = page
-        }
-
-        override fun onClick(v: View) {
-            page?.let {
-                val intent = Intent(v.context, it.target)
-                v.context.startActivity(intent)
-            }
-        }
+        adapter.notifyDataSetChanged()
     }
 
     private class Page {

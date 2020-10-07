@@ -131,7 +131,6 @@ class MediaDecoder(
             coder.dequeueOutputBuffer(bufferInfo, TIMEOUTUS)
         } catch (e: Exception) {
             onError(ERROR_DRAIN_BUFFER, "", e)
-            release()
             return
         }
         when {
@@ -150,7 +149,12 @@ class MediaDecoder(
                     if (isReleased) {
                         return
                     }
-                    coder.releaseOutputBuffer(index, true)
+                    try {
+                        coder.releaseOutputBuffer(index, true)
+                    } catch (e: Exception) {
+                        onError(ERROR_RELEASE_BUFFER, "", e)
+                        return
+                    }
                     // output有surface时，getOutputBuffer获取为空
                 } else {
                     dataListener?.let {
@@ -176,7 +180,6 @@ class MediaDecoder(
                             coder.releaseOutputBuffer(index, false)
                         } catch (e: Exception) {
                             onError(ERROR_RELEASE_BUFFER, "", e)
-                            release()
                             return
                         }
                     }

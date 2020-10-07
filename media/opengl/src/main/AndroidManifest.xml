@@ -2,6 +2,7 @@
     package="cradle.rancune.media.opengl">
 
     <application>
-        <activity android:name=".ui.OpenglActivity" />
+        <activity android:name=".ui.OpenglBasisActivity" />
+        <activity android:name=".ui.OpenglMainactivity" />
     </application>
 </manifest>

@@ -1,0 +1,12 @@
+<resources>
+    <string name="opengl_activity_opengl">OpenGL</string>
+    <string name="opengl_activity_opengl1">OpenGL多彩三角形</string>
+    <string name="opengl_activity_opengl2">OpenGL正方形</string>
+    <string name="opengl_activity_opengl3">OpenGL圆形</string>
+    <string name="opengl_activity_opengl4">OpenGL DrawElements</string>
+    <string name="opengl_activity_opengl5">OpenGL初识纹理</string>
+    <string name="opengl_activity_opengl8">OpenGL相机</string>
+    <string name="opengl_activity_opengl9">OpenGL图片饱和度</string>
+    <string name="opengl_activity_opengl10">OpenGL FBO</string>
+    <string name="opengl_activity_opengl11">OpenGL EGL</string>
+</resources>

@@ -8,6 +8,5 @@
     <string name="once_activity_jni_test">JniTest</string>
     <string name="once_activity_opengl">OpenGL</string>
 
-
     <string name="once_file_not_exists">文件%s不存在</string>
 </resources>

@@ -39,6 +39,11 @@ class PCMPlayerActivity : BaseActivity() {
         setContentView(R.layout.once_activity_pcm_player)
     }
 
+    override fun initToolbar() {
+        super.initToolbar()
+        supportActionBar?.setTitle(R.string.once_activity_pcm_player)
+    }
+
     override fun initData() {
         if (!file.exists() || file.isDirectory) {
             T.showShort(findString(R.string.once_file_not_exists, file.absolutePath))

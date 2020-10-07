@@ -39,6 +39,11 @@ class AudioRecordActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
+    override fun initToolbar() {
+        super.initToolbar()
+        supportActionBar?.setTitle(R.string.once_activity_audio_record)
+    }
+
     override fun initData() {
         val config = AudioConfig()
         worker = AudioRecordWorker(config)

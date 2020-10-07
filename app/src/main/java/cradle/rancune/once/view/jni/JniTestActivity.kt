@@ -15,6 +15,11 @@ class JniTestActivity : BaseActivity() {
         setContentView(R.layout.once_activity_jni_test)
     }
 
+    override fun initToolbar() {
+        super.initToolbar()
+        supportActionBar?.setTitle(R.string.once_activity_jni_test)
+    }
+
     override fun initData() {
         jniTest.test()
     }

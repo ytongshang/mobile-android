@@ -63,6 +63,11 @@ class MediaCodecVideoPlayActivity : BaseActivity(), Handler.Callback {
         setContentView(R.layout.once_activity_mediacode_video)
     }
 
+    override fun initToolbar() {
+        super.initToolbar()
+        supportActionBar?.setTitle(R.string.once_activity_video_player)
+    }
+
     override fun initData() {
         if (!file.exists() || file.isDirectory) {
             T.showShort(findString(R.string.once_file_not_exists, file.absolutePath))
@@ -165,9 +170,14 @@ class MediaCodecVideoPlayActivity : BaseActivity(), Handler.Callback {
                                     AudioFormat.CHANNEL_OUT_MONO
                                 }
                             // encoding bits
-                            val encoding = outputFormat.getInteger(MediaFormat.KEY_PCM_ENCODING)
-                            val encodingFormat =
-                                if (encoding == 2) AudioFormat.ENCODING_PCM_16BIT else AudioFormat.ENCODING_PCM_8BIT
+                            val encodingFormat: Int =
+                                if (outputFormat.containsKey(MediaFormat.KEY_PCM_ENCODING)) {
+                                    val encoding =
+                                        outputFormat.getInteger(MediaFormat.KEY_PCM_ENCODING)
+                                    if (encoding == 2) AudioFormat.ENCODING_PCM_16BIT else AudioFormat.ENCODING_PCM_8BIT
+                                } else {
+                                    AudioFormat.ENCODING_PCM_16BIT
+                                }
                             config.audioEncodingFormat = encodingFormat
                             audioPlayer = AudioTrackPlayer(config)
                             audioPlayer?.prepare()

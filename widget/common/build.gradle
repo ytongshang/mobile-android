@@ -1,0 +1,8 @@
+apply from: "./../../project.gradle"
+libConfig()
+
+dependencies {
+    api rootProject.ext.dependencies['annotation']
+    api rootProject.ext.dependencies['recyclerView']
+}
+

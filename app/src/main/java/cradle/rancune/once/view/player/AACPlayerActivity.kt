@@ -42,7 +42,11 @@ class AACPlayerActivity : BaseActivity() {
 
     override fun initView() {
         setContentView(R.layout.once_activity_pcm_player)
+    }
 
+    override fun initToolbar() {
+        super.initToolbar()
+        supportActionBar?.setTitle(R.string.once_activity_aac_player)
     }
 
     override fun initData() {

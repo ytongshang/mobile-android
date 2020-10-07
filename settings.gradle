@@ -10,3 +10,5 @@ include ':media:opengl'
 
 include ':tech:aop'
 include ':tech:jni'
+
+include ':widget:common'

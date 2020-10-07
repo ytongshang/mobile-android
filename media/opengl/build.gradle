@@ -8,4 +8,5 @@ android {
 dependencies {
     implementation project(path: ':internal:core')
     implementation project(path: ':internal:appbase')
+    implementation project(path: ':widget:common')
 }
