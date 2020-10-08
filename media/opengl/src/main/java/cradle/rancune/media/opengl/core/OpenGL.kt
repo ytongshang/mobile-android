@@ -50,6 +50,11 @@ object OpenGL {
         GLES30.glShaderSource(shader, code)
         GLES30.glCompileShader(shader)
         val status = IntArray(1)
+        // GLES30.GL_COMPILE_STATUS
+        // GLES30.GL_DELETE_STATUS
+        // GLES30.GL_INFO_LOG_LENGTH
+        // GLES30.GL_SHADER_SOURCE_LENGTH
+        // GLES30.GL_SHADER_TYPE
         GLES30.glGetShaderiv(shader, GLES30.GL_COMPILE_STATUS, status, 0)
         if (status[0] != GLES30.GL_TRUE) {
             val length = IntArray(1)
@@ -77,7 +82,7 @@ object OpenGL {
         }
         if (vertexShader > 0) {
             GLES30.glAttachShader(program, vertexShader)
-        }
+        }  vz
         if (fragmentShader > 0) {
             GLES30.glAttachShader(program, fragmentShader)
         }
