@@ -5,6 +5,7 @@
 
 #ifndef _Included_cradle_rancune_tech_jni_JniTest
 #define _Included_cradle_rancune_tech_jni_JniTest
+
 #ifdef __cplusplus
 extern "C" {
 #endif

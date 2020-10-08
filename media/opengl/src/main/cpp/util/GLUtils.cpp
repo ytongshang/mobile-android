@@ -1,6 +1,6 @@
 #include "GLUtils.h"
-#include "LogUtil.h"
-#include <stdlib.h>
+#include "LogUtils.h"
+#include <cstdlib>
 #include <cstring>
 #include <GLES2/gl2ext.h>
 
@@ -19,9 +19,9 @@ GLuint GLUtils::LoadShader(GLenum shaderType, const char *pSource) {
                 if (infoLen) {
                     char *buf = (char *) malloc((size_t) infoLen);
                     if (buf) {
-                        glGetShaderInfoLog(shader, infoLen, NULL, buf);
-                        LOGCATE("GLUtils::LoadShader Could not compile shader %d:\n%s\n",
-                                shaderType, buf);
+                        glGetShaderInfoLog(shader, infoLen, nullptr, buf);
+                        LOGE("GLUtils::LoadShader Could not compile shader %d:\n%s\n",
+                             shaderType, buf);
                         free(buf);
                     }
                     glDeleteShader(shader);
@@ -64,8 +64,8 @@ GLuint GLUtils::CreateProgram(const char *pVertexShaderSource, const char *pFrag
                 if (bufLength) {
                     char *buf = (char *) malloc((size_t) bufLength);
                     if (buf) {
-                        glGetProgramInfoLog(program, bufLength, NULL, buf);
-                        LOGCATE("GLUtils::CreateProgram Could not link program:\n%s\n", buf);
+                        glGetProgramInfoLog(program, bufLength, nullptr, buf);
+                        LOGE("GLUtils::CreateProgram Could not link program:\n%s\n", buf);
                         free(buf);
                     }
                 }
@@ -74,7 +74,7 @@ GLuint GLUtils::CreateProgram(const char *pVertexShaderSource, const char *pFrag
             }
         }
     FUN_END_TIME("GLUtils::CreateProgram")
-    LOGCATE("GLUtils::CreateProgram program = %d", program);
+    LOGD("GLUtils::CreateProgram program = %d", program);
     return program;
 }
 
@@ -117,9 +117,9 @@ GLUtils::CreateProgramWithFeedback(const char *pVertexShaderSource, const char *
                 if (bufLength) {
                     char *buf = (char *) malloc((size_t) bufLength);
                     if (buf) {
-                        glGetProgramInfoLog(program, bufLength, NULL, buf);
-                        LOGCATE("GLUtils::CreateProgramWithFeedback Could not link program:\n%s\n",
-                                buf);
+                        glGetProgramInfoLog(program, bufLength, nullptr, buf);
+                        LOGE("GLUtils::CreateProgramWithFeedback Could not link program:\n%s\n",
+                             buf);
                         free(buf);
                     }
                 }
@@ -128,12 +128,12 @@ GLUtils::CreateProgramWithFeedback(const char *pVertexShaderSource, const char *
             }
         }
     FUN_END_TIME("GLUtils::CreateProgramWithFeedback")
-    LOGCATE("GLUtils::CreateProgramWithFeedback program = %d", program);
+    LOGD("GLUtils::CreateProgramWithFeedback program = %d", program);
     return program;
 }
 
 void GLUtils::DeleteProgram(GLuint &program) {
-    LOGCATE("GLUtils::DeleteProgram");
+    LOGD("GLUtils::DeleteProgram");
     if (program) {
         glUseProgram(0);
         glDeleteProgram(program);
@@ -143,9 +143,8 @@ void GLUtils::DeleteProgram(GLuint &program) {
 
 void GLUtils::CheckGLError(const char *pGLOperation) {
     for (GLint error = glGetError(); error; error = glGetError()) {
-        LOGCATE("GLUtils::CheckGLError GL Operation %s() glError (0x%x)\n", pGLOperation, error);
+        LOGE("GLUtils::CheckGLError GL Operation %s() glError (0x%x)\n", pGLOperation, error);
     }
-
 }
 
 GLuint GLUtils::CreateProgram(const char *pVertexShaderSource, const char *pFragShaderSource) {

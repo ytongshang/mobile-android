@@ -7,13 +7,16 @@
 
 class GLUtils {
 public:
-    static GLuint LoadShader(GLenum shaderType, const char *pSource);
+    static GLuint LoadShader(GLenum shaderType,
+                             const char *pSource);
 
-    static GLuint CreateProgram(const char *pVertexShaderSource, const char *pFragShaderSource,
+    static GLuint CreateProgram(const char *pVertexShaderSource,
+                                const char *pFragShaderSource,
                                 GLuint &vertexShaderHandle,
                                 GLuint &fragShaderHandle);
 
-    static GLuint CreateProgram(const char *pVertexShaderSource, const char *pFragShaderSource);
+    static GLuint CreateProgram(const char *pVertexShaderSource,
+                                const char *pFragShaderSource);
 
     static GLuint CreateProgramWithFeedback(
             const char *pVertexShaderSource,
@@ -59,7 +62,8 @@ public:
         glUniform4fv(glGetUniformLocation(programId, name.c_str()), 1, &value[0]);
     }
 
-    static void setVec4(GLuint programId, const std::string &name, float x, float y, float z, float w) {
+    static void
+    setVec4(GLuint programId, const std::string &name, float x, float y, float z, float w) {
         glUniform4f(glGetUniformLocation(programId, name.c_str()), x, y, z, w);
     }
 

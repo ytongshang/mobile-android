@@ -2,13 +2,11 @@
 # documentation: https://d.android.com/studio/projects/add-native-code.html
 
 # Sets the minimum version of CMake required to build the native library.
-
 cmake_minimum_required(VERSION 3.4.1)
-
-set(jnilibs "${CMAKE_SOURCE_DIR}/../jniLibs")
 
 include_directories(
         glm
+        j4a
         util
         render
 )
@@ -17,11 +15,13 @@ include_directories(
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
-file(GLOB src-files
-        ${PROJECT_SOURCE_DIR}/*.cpp
-        ${PROJECT_SOURCE_DIR}/render/*.cpp
-        ${PROJECT_SOURCE_DIR}/util/*.cpp)
-message(${src-files})
+
+set(j4a_files
+        j4a/j4a_base.c
+        j4a/class/android/os/Build.c
+        )
+
+set(util_files util/GLUtils.cpp)
 
 add_library( # Sets the name of the library.
         native-render
@@ -30,7 +30,8 @@ add_library( # Sets the name of the library.
         SHARED
 
         # Provides a relative path to your source file(s).
-        ${src-files}
+        ${j4a_files}
+        ${util_files}
         )
 
 # Searches for a specified prebuilt library and stores the path as a

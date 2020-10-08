@@ -1,8 +1,7 @@
 //
 // Created by 谭华 on 2020/5/12.
 //
-#include "cradle_rancune_tech_jni_JniTest.h"
-#include "logutils.h"
+#include "jnitest.h"
 #include <stdlib.h>
 
 #ifdef __cplusplus
@@ -19,18 +18,19 @@ void Java_cradle_rancune_tech_jni_JniTest_cacheFieldAndMethods(JNIEnv *env, jcla
 
 JNIEXPORT jstring JNICALL
 Java_cradle_rancune_tech_jni_JniTest_getNativeString(JNIEnv *env, jclass clazz, jstring string) {
-    LOGD("getNativeString");
+    __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "getNativeString");
     // jstring是指向jvm内部的字符串，它不是c风格的字符串char*
     // 将jstring 类型的字符串转换为C风格的UTF-8字符串，会额外申请内存
     if (string == NULL) {
         return NULL;
     }
     int length = (*env)->GetStringUTFLength(env, string);
-    LOGD("getNativeString, origin length:%d", length)
+    __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "getNativeString, origin length:%d",
+                        length);
     if (length > 4) {
         jchar outbuf[4];
         (*env)->GetStringUTFRegion(env, string, 0, 4, outbuf);
-        LOGD("%s", outbuf);
+        __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "%s", outbuf);
     }
     const char *str = (*env)->GetStringUTFChars(env, string, NULL);
     if (str != NULL) {
@@ -46,7 +46,7 @@ Java_cradle_rancune_tech_jni_JniTest_getNativeString(JNIEnv *env, jclass clazz, 
 jint
 Java_cradle_rancune_tech_jni_JniTest_intArraySum(JNIEnv *env, jclass clazz, jintArray intArray_,
                                                  jint num_) {
-    LOGD("intArraySum");
+    __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "intArraySum");
     jint *intArray = (*env)->GetIntArrayElements(env, intArray_, NULL);
     if (intArray == NULL) {
         return 0;
@@ -54,11 +54,11 @@ Java_cradle_rancune_tech_jni_JniTest_intArraySum(JNIEnv *env, jclass clazz, jint
     int sum = 0;
     // 如同getUTFString一样，会申请native内存
     int length = (*env)->GetArrayLength(env, intArray_);
-    LOGD("array length is %d", length);
+    __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "array length is %d", length);
     for (int i = 0; i < length; i++) {
         sum += intArray[i];
     }
-    LOGD("sum is %d", sum);
+    __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "sum is %d", sum);
     // 用完之后需要释放
     (*env)->ReleaseIntArrayElements(env, intArray_, intArray, 0);
 
@@ -70,12 +70,12 @@ Java_cradle_rancune_tech_jni_JniTest_intArraySum(JNIEnv *env, jclass clazz, jint
     for (int i = 0; i < num_; i++) {
         sum += buf[i];
     }
-    LOGD("sum is %d", sum);
+    __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "sum is %d", sum);
     return 0;
 }
 
 jintArray Java_cradle_rancune_tech_jni_JniTest_getIntArray(JNIEnv *env, jclass clazz, jint num_) {
-    LOGD("getIntArray");
+    __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "getIntArray");
     if (num_ <= 0) {
         return NULL;
     }
@@ -93,7 +93,7 @@ jintArray Java_cradle_rancune_tech_jni_JniTest_getIntArray(JNIEnv *env, jclass c
 jobjectArray
 Java_cradle_rancune_tech_jni_JniTest_getTwoDimensionalArray(JNIEnv *env, jclass clazz,
                                                             jint row, jint column) {
-    LOGD("getTwoDimensionalArray");
+    __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "getTwoDimensionalArray");
     // 二维数组，可以看作数组的数组
     jobjectArray result;
     // int[]类型
@@ -129,7 +129,7 @@ Java_cradle_rancune_tech_jni_JniTest_getTwoDimensionalArray(JNIEnv *env, jclass 
 
 void Java_cradle_rancune_tech_jni_JniTest_printAnimalsName(JNIEnv *env, jclass clazz,
                                                            jobjectArray beans) {
-    LOGD("printAnimalsName");
+    __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "printAnimalsName");
     // 数组长度
     int size = (*env)->GetArrayLength(env, beans);
     if (size <= 0) {
@@ -153,7 +153,7 @@ void Java_cradle_rancune_tech_jni_JniTest_printAnimalsName(JNIEnv *env, jclass c
         if (str == NULL) {
             continue;
         }
-        LOGD("animal %d name is: %s", i, str);
+        __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "animal %d name is: %s", i, str);
         (*env)->ReleaseStringUTFChars(env, jstr, str);
     }
 }
@@ -165,7 +165,7 @@ void Java_cradle_rancune_tech_jni_JniTest_printAnimalsName(JNIEnv *env, jclass c
  */
 void Java_cradle_rancune_tech_jni_JniTest_accessInstanceAndStaticField(JNIEnv *env, jobject thiz,
                                                                        jobject animal) {
-    LOGD("accessInstanceField");
+    __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "accessInstanceField");
     // 想要获取的字段 id
     jfieldID fid;
     // 字段对应的具体的值
@@ -186,7 +186,7 @@ void Java_cradle_rancune_tech_jni_JniTest_accessInstanceAndStaticField(JNIEnv *e
     if (str == NULL) {
         return;
     }
-    LOGD("name is %s", str);
+    __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "name is %s", str);
     (*env)->ReleaseStringUTFChars(env, jstr, str);
     jstr = (*env)->NewStringUTF(env, "accessInstanceAndStaticField");
     if (jstr == NULL) {
@@ -202,12 +202,13 @@ void Java_cradle_rancune_tech_jni_JniTest_accessInstanceAndStaticField(JNIEnv *e
         return;
     }
     jint num = (*env)->GetStaticIntField(env, class, staticFid);
-    LOGD("static num is %d", num);
+    __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "static num is %d", num);
     (*env)->SetStaticIntField(env, class, staticFid, ++num);
 }
 
 void Java_cradle_rancune_tech_jni_JniTest_callInstanceAndStaticMethod(JNIEnv *env, jobject thiz,
                                                                       jobject animal) {
+    __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "callInstanceAndStaticMethod");
     jclass class = (*env)->GetObjectClass(env, animal);
     jmethodID mid = (*env)->GetMethodID(env, class, "setName",
                                         "(Ljava/lang/String;)Lcradle/rancune/tech/jni/Animal;");
@@ -233,6 +234,7 @@ void Java_cradle_rancune_tech_jni_JniTest_callInstanceAndStaticMethod(JNIEnv *en
  */
 jobject Java_cradle_rancune_tech_jni_JniTest_invokeAnimalConstructor(JNIEnv *env, jobject thiz,
                                                                      jstring name) {
+    __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "invokeAnimalConstructor");
     jclass jclass = (*env)->FindClass(env, "cradle/rancune/tech/jni/Animal");
     if (jclass == NULL) {
         return NULL;
@@ -258,6 +260,7 @@ jobject Java_cradle_rancune_tech_jni_JniTest_invokeAnimalConstructor(JNIEnv *env
 
 jobject Java_cradle_rancune_tech_jni_JniTest_allocAnimalConstructor(JNIEnv *env, jobject thiz,
                                                                     jstring name) {
+    __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "allocAnimalConstructor");
     jclass jclass = (*env)->FindClass(env, "cradle/rancune/tech/jni/Animal");
     if (jclass == NULL) {
         return NULL;
@@ -281,6 +284,7 @@ jobject Java_cradle_rancune_tech_jni_JniTest_allocAnimalConstructor(JNIEnv *env,
 }
 
 void Java_cradle_rancune_tech_jni_JniTest_callSuperMethod(JNIEnv *env, jobject thiz, jstring name) {
+    __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "callSuperMethod");
     jclass catClazz = (*env)->FindClass(env, "cradle/rancune/tech/jni/Cat");
     if (catClazz == NULL) {
         return;
@@ -300,7 +304,7 @@ void Java_cradle_rancune_tech_jni_JniTest_callSuperMethod(JNIEnv *env, jobject t
     }
     // 在cat类中调用animal的getName方法
     jstring catName = (*env)->CallNonvirtualObjectMethod(env, cat, animalClass, animalMid);
-    LOGD("cat name: %s", catName);
+    __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "cat name: %s", catName);
     jmethodID animalMid2 = (*env)->GetMethodID(env, animalClass, "method1", "()V");
     if (animalMid2 == NULL) {
         return;
@@ -311,6 +315,7 @@ void Java_cradle_rancune_tech_jni_JniTest_callSuperMethod(JNIEnv *env, jobject t
 
 JNIEXPORT jobject JNICALL
 Java_cradle_rancune_tech_jni_JniTest_useCacheMethod(JNIEnv *env, jobject thiz, jstring name) {
+    __android_log_print(ANDROID_LOG_DEBUG, "JniTestNative", "useCacheMethod");
     if (catClass != NULL && catConstructor != NULL) {
         jobject cat = (*env)->NewObject(env, catClass, catConstructor, name);
         return cat;
