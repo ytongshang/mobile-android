@@ -5,6 +5,7 @@ import android.media.AudioManager
 import android.media.MediaFormat
 import cradle.rancune.core.appbase.BaseActivity
 import cradle.rancune.internal.logger.AndroidLog
+import cradle.rancune.internal.utils.T
 import cradle.rancune.media.EncodedData
 import cradle.rancune.media.OnDataListener
 import cradle.rancune.media.OnErrorListener
@@ -57,6 +58,10 @@ class AACPlayerActivity : BaseActivity() {
     private fun start() {
         thread {
             val f = File(getExternalFilesDir(Constant.AUDIO_FILE), "test.aac")
+            if (!f.exists()) {
+                T.showShort("文件不存在")
+                return@thread
+            }
             audioSource = FileExtractor(f.absolutePath)
             audioSource?.prepare()
             audioSource?.findTrack("audio")

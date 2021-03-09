@@ -45,5 +45,6 @@ dependencies {
     implementation project(path: ':media:opengl')
     implementation project(path: ':tech:jni')
     implementation project(path: ':widget:common')
+    implementation project(path: ':tech:aop')
     //implementation project(path: ':media:ffmpeg')
 }
