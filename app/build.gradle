@@ -9,7 +9,7 @@ android {
         versionName rootProject.ext.app["versionName"]
 
         ndk {
-            abiFilters 'armeabi-v7a'
+            abiFilters 'armeabi-v7a', "arm64-v8a"
         }
     }
 
@@ -45,6 +45,32 @@ dependencies {
     implementation project(path: ':media:opengl')
     implementation project(path: ':tech:jni')
     implementation project(path: ':widget:common')
-    implementation project(path: ':tech:aop')
     //implementation project(path: ':media:ffmpeg')
+}
+
+
+class MyTask extends DefaultTask {
+
+    String message = "mytask..."
+
+    @TaskAction
+    def ss1() {
+        println("This is MyTask --> action1!")
+    }
+
+    @TaskAction
+    def ss2() {
+        println("This is MyTask --> action2!")
+    }
+
+}
+
+task speak(type: MyTask) {
+    println("This is AA!")
+    doFirst {
+        println("This is doFirst!")
+    }
+    doLast {
+        println("This is doLast!")
+    }
 }

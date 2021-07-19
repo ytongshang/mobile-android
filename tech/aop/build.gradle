@@ -1,6 +1,0 @@
-apply from: "./../../project.gradle"
-libConfig()
-
-dependencies {
-    implementation project(path: ':internal:core')
-}
