@@ -66,7 +66,16 @@ public class EglHelper {
         }
         int[] version = new int[2];
         if (!EGL14.eglInitialize(mDisplay, version, 0, version, 1)) {
-            throw new RuntimeException("unable to initialize EGL14");
+            int error = EGL14.eglGetError();
+            String msg = "";
+            if (error == EGL14.EGL_BAD_DISPLAY) {
+                msg = "EGL14.EGL_BAD_DISPLAY";
+            } else if (error == EGL14.EGL_NOT_INITIALIZED) {
+                msg = "EGL14.EGL_NOT_INITIALIZED";
+            } else {
+                msg = "egl error: 0x" + Integer.toHexString(error);
+            }
+            throw new RuntimeException("unable to initialize EGL14, error:" + msg);
         }
         if ((flags & FLAG_TRY_GLES3) != 0) {
             EGLConfig config = getConfig(flags, 3);
@@ -93,6 +102,7 @@ public class EglHelper {
             if (config == null) {
                 throw new RuntimeException("Unable to find a suitable EGLConfig");
             }
+            // eglCreateContext只接受EGL14.EGL_CONTEXT_CLIENT_VERSION这一参数
             int[] attrib2_list = {
                     EGL14.EGL_CONTEXT_CLIENT_VERSION, 2,
                     EGL14.EGL_NONE
@@ -125,6 +135,7 @@ public class EglHelper {
         if (mSurface == null) {
             throw new RuntimeException("surface was null");
         }
+        // 因为EGL规范要求eglMakeCurrent实现进行一次刷新，所以这一调用对于基于图块的架构代价很高
         EGL14.eglMakeCurrent(mDisplay, mSurface, mSurface, mContext);
         checkEglError("eglMakeCurrent");
     }
@@ -136,6 +147,14 @@ public class EglHelper {
         int[] pbAttrs = {
                 EGL14.EGL_WIDTH, width,
                 EGL14.EGL_HEIGHT, height,
+                // 如果请求的大小不可用，选择最大的Pbuffer
+                // EGL14.EGL_LARGEST_PBUFFER, EGL14.EGL_TRUE,
+                // 如果pbuffer绑定到一个纹理，指定纹理的格式类型，EGL_NO_TEXTURE表示不能直接用于纹理
+                // EGL14.EGL_TEXTURE_FORMAT, EGL14.EGL_TEXTURE_RGB/EGL14.EGL_TEXTURE_RGBA/EGL14.EGL_NO_TEXTURE,
+                // 指定pbuffer作为纹理帖图时应该连接到的相关纹理目标
+                // EGL14.EGL_TEXTURE_TARGET,EGL14.EGL_TEXTURE_2D/EGL14.EGL_NO_TEXTURE,
+                // 指定是否应该另外为纹理mipmap级别分配内存
+                // EGL14.EGL_MIPMAP_TEXTURE,EGL14.EGL_TRUE/EGL14.EGL_FALSE,
                 EGL14.EGL_NONE};
         mSurface = EGL14.eglCreatePbufferSurface(mDisplay, mConfig, pbAttrs, 0);
         checkEglError("eglCreatePbufferSurface");
@@ -186,6 +205,10 @@ public class EglHelper {
         }
     }
 
+    /**
+     * 创建EGL Pbuffer则必须需要加上下面的参数
+     * EGL14.EGL_SURFACE_TYPE, EGL14.EGL_PBUFFER_BIT
+     */
     private EGLConfig getConfig(int flags, int version) {
         int renderableType = EGL14.EGL_OPENGL_ES2_BIT;
         if (version >= 3) {
@@ -196,23 +219,31 @@ public class EglHelper {
         // doesn't really help.  It can also lead to a huge performance hit on glReadPixels()
         // when reading into a GL_RGBA buffer.
         int[] attribList = {
+                // 如果是eglCreatePbufferSurface,下面这一参数必须指定
+                //EGL14.EGL_SURFACE_TYPE, EGL14.EGL_PBUFFER_BIT
+                // 默认创建surfaceType,则使用下面的类型
+                EGL14.EGL_SURFACE_TYPE, EGL14.EGL_WINDOW_BIT,
+                EGL14.EGL_RENDERABLE_TYPE, renderableType,
                 EGL14.EGL_RED_SIZE, 8,
                 EGL14.EGL_GREEN_SIZE, 8,
                 EGL14.EGL_BLUE_SIZE, 8,
                 EGL14.EGL_ALPHA_SIZE, 8,
                 //EGL14.EGL_DEPTH_SIZE, 16,
                 //EGL14.EGL_STENCIL_SIZE, 8,
-                EGL14.EGL_RENDERABLE_TYPE, renderableType,
                 EGL14.EGL_NONE, 0,      // placeholder for recordable [@-3]
                 EGL14.EGL_NONE
         };
+        // 使用MediaCodec进行编码则必须指定这个
         if ((flags & FLAG_RECORDABLE) != 0) {
             attribList[attribList.length - 3] = EGL_RECORDABLE_ANDROID;
             attribList[attribList.length - 2] = 1;
         }
+        // 实际这里可以传递多个config的数组，让函数返回，
+        // 但是这样我们就需要从可能返回的数组中自己做筛选选出最合适的config
         EGLConfig[] configs = new EGLConfig[1];
         int[] numConfigs = new int[1];
-        if (!EGL14.eglChooseConfig(mDisplay, attribList, 0, configs, 0, configs.length,
+        if (!EGL14.eglChooseConfig(mDisplay, attribList, 0,
+                configs, 0, configs.length,
                 numConfigs, 0)) {
             L.INSTANCE.w(TAG, "unable to find RGB8888 / " + version + " EGLConfig");
             return null;
